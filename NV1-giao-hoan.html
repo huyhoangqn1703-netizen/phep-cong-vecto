@@ -126,4 +126,750 @@
     <button id="tabBtnA" onclick="switchMobileTab('panelCaseA')" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-sm flex items-center justify-center gap-1.5">
       <span>Câu a: $\overrightarrow{a} + \overrightarrow{b}$</span>
     </button>
-    <button id="tabBtnB" onclick="switchMobileTab('panelCaseB')" class="flex-1 py-1
+    <button id="tabBtnB" onclick="switchMobileTab('panelCaseB')" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 flex items-center justify-center gap-1.5">
+      <span>Câu b: $\overrightarrow{b} + \overrightarrow{a}$</span>
+    </button>
+  </div>
+
+  <!-- Toast notification banner -->
+  <div id="toast" class="fixed top-16 right-3 sm:right-4 z-50 pointer-events-none transform translate-y-[-16px] opacity-0 toast-anim max-w-xs sm:max-w-sm w-full p-3 rounded-xl shadow-xl border flex items-center gap-3">
+    <div id="toastIcon" class="text-xl shrink-0"></div>
+    <div class="flex-1">
+      <div id="toastTitle" class="text-xs font-bold uppercase tracking-wider"></div>
+      <div id="toastMsg" class="text-[11px] sm:text-xs mt-0.5 font-medium leading-snug"></div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="max-w-7xl mx-auto w-full p-2.5 sm:p-4 flex-1 pb-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+
+      <!-- ==================== CỘT TRÁI: CÂU a ==================== -->
+      <section id="panelCaseA" class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+        <!-- Panel Header -->
+        <div class="px-3.5 py-2 sm:py-2.5 bg-blue-50/70 border-b border-blue-100 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="w-5 h-5 sm:w-6 sm:h-6 rounded bg-blue-600 text-white font-bold text-xs flex items-center justify-center">a</span>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">Xác định $\overrightarrow{a} + \overrightarrow{b}$</h2>
+          </div>
+          <span id="badgeA" class="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">Bước 1 / 3</span>
+        </div>
+
+        <!-- Instruction Message -->
+        <div class="px-3.5 py-2 bg-slate-50 border-b border-slate-200 text-xs shrink-0">
+          <div id="guideTextA" class="text-slate-700 font-medium leading-tight text-[11px] sm:text-xs">
+            <!-- Dynamic instruction -->
+          </div>
+        </div>
+
+        <!-- Draggable Source Tray -->
+        <div class="px-3 py-2 bg-slate-100 border-b border-slate-200 shrink-0 flex items-center justify-between gap-2">
+          <span class="text-[10px] sm:text-[11px] font-bold uppercase text-slate-500 tracking-wider flex items-center gap-1">
+            <i class="fa-solid fa-box-open"></i> Khay:
+          </span>
+          <div class="flex items-center gap-2">
+            <div id="dragContainerA_a" class="flex items-center gap-1 px-2 py-1 bg-white rounded-lg border border-slate-300 shadow-xs">
+              <span class="text-xs font-bold text-blue-600">$\overrightarrow{a}$</span>
+              <svg id="svgTrayA_a" width="76" height="30" class="vector-drag-item" data-case="caseA" data-type="a"></svg>
+            </div>
+            <div id="dragContainerA_b" class="flex items-center gap-1 px-2 py-1 bg-white rounded-lg border border-slate-300 shadow-xs">
+              <span class="text-xs font-bold text-amber-600">$\overrightarrow{b}$</span>
+              <svg id="svgTrayA_b" width="55" height="38" class="vector-drag-item" data-case="caseA" data-type="b"></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- SVG Canvas (chiều cao cố định 300px để không bị méo trên điện thoại) -->
+        <div class="relative w-full h-[300px] sm:h-[320px] bg-white math-grid overflow-hidden">
+          <svg id="svgBoardA" class="board-svg w-full h-full absolute inset-0 block select-none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrowHeadA_blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+              </marker>
+              <marker id="arrowHeadA_amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706" />
+              </marker>
+              <marker id="arrowHeadA_purple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7c3aed" />
+              </marker>
+            </defs>
+
+            <g id="layerStaticA">
+              <circle cx="90" cy="240" r="5" fill="#0f172a" stroke="#ffffff" stroke-width="2" />
+              <text x="76" y="260" font-size="14" font-weight="bold" fill="#0f172a">O</text>
+            </g>
+
+            <g id="layerSnapRingsA"></g>
+            <g id="layerPlacedA"></g>
+            <g id="layerFloatingA"></g>
+          </svg>
+        </div>
+
+        <!-- Panel Footer -->
+        <div class="px-3.5 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+          <div id="footerStatusA" class="text-[11px] sm:text-xs text-slate-500 font-medium flex items-center gap-1">
+            <i class="fa-solid fa-arrow-pointer text-blue-500"></i> Kéo vectơ tương ứng vào bảng
+          </div>
+          <button id="btnConnectA" class="hidden px-3 py-1.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white rounded-lg text-xs font-bold shadow transition flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Nối vectơ $\overrightarrow{OB}$</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================== CỘT PHẢI: CÂU b ==================== -->
+      <section id="panelCaseB" class="hidden md:flex bg-white rounded-xl border border-slate-200 shadow-sm flex-col overflow-hidden">
+        <!-- Panel Header -->
+        <div class="px-3.5 py-2 sm:py-2.5 bg-amber-50/70 border-b border-amber-100 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="w-5 h-5 sm:w-6 sm:h-6 rounded bg-amber-600 text-white font-bold text-xs flex items-center justify-center">b</span>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">Xác định $\overrightarrow{b} + \overrightarrow{a}$</h2>
+          </div>
+          <span id="badgeB" class="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Bước 1 / 3</span>
+        </div>
+
+        <!-- Instruction Message -->
+        <div class="px-3.5 py-2 bg-slate-50 border-b border-slate-200 text-xs shrink-0">
+          <div id="guideTextB" class="text-slate-700 font-medium leading-tight text-[11px] sm:text-xs">
+            <!-- Dynamic instruction -->
+          </div>
+        </div>
+
+        <!-- Draggable Source Tray -->
+        <div class="px-3 py-2 bg-slate-100 border-b border-slate-200 shrink-0 flex items-center justify-between gap-2">
+          <span class="text-[10px] sm:text-[11px] font-bold uppercase text-slate-500 tracking-wider flex items-center gap-1">
+            <i class="fa-solid fa-box-open"></i> Khay:
+          </span>
+          <div class="flex items-center gap-2">
+            <div id="dragContainerB_b" class="flex items-center gap-1 px-2 py-1 bg-white rounded-lg border border-slate-300 shadow-xs">
+              <span class="text-xs font-bold text-amber-600">$\overrightarrow{b}$</span>
+              <svg id="svgTrayB_b" width="55" height="38" class="vector-drag-item" data-case="caseB" data-type="b"></svg>
+            </div>
+            <div id="dragContainerB_a" class="flex items-center gap-1 px-2 py-1 bg-white rounded-lg border border-slate-300 shadow-xs">
+              <span class="text-xs font-bold text-blue-600">$\overrightarrow{a}$</span>
+              <svg id="svgTrayB_a" width="76" height="30" class="vector-drag-item" data-case="caseB" data-type="a"></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- SVG Canvas (chiều cao cố định 300px) -->
+        <div class="relative w-full h-[300px] sm:h-[320px] bg-white math-grid overflow-hidden">
+          <svg id="svgBoardB" class="board-svg w-full h-full absolute inset-0 block select-none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrowHeadB_amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706" />
+              </marker>
+              <marker id="arrowHeadB_blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+              </marker>
+              <marker id="arrowHeadB_emerald" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669" />
+              </marker>
+            </defs>
+
+            <g id="layerStaticB">
+              <circle cx="90" cy="240" r="5" fill="#0f172a" stroke="#ffffff" stroke-width="2" />
+              <text x="68" y="258" font-size="14" font-weight="bold" fill="#0f172a">O</text>
+            </g>
+
+            <g id="layerSnapRingsB"></g>
+            <g id="layerPlacedB"></g>
+            <g id="layerFloatingB"></g>
+          </svg>
+        </div>
+
+        <!-- Panel Footer -->
+        <div class="px-3.5 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+          <div id="footerStatusB" class="text-[11px] sm:text-xs text-slate-500 font-medium flex items-center gap-1">
+            <i class="fa-solid fa-arrow-pointer text-amber-500"></i> Kéo vectơ tương ứng vào bảng
+          </div>
+          <button id="btnConnectB" class="hidden px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-lg text-xs font-bold shadow transition flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Nối vectơ $\overrightarrow{OB'}$</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= MODAL SO SÁNH CHẬP HÌNH BÌNH HÀNH ================= -->
+  <div id="modalCompare" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in duration-150">
+      
+      <!-- Modal Header -->
+      <div class="px-4 py-3 bg-slate-900 text-white flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center text-xs sm:text-sm">
+            <i class="fa-solid fa-code-compare"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-xs sm:text-base">Khám Phá: $\overrightarrow{a} + \overrightarrow{b} = \overrightarrow{b} + \overrightarrow{a}$</h3>
+            <p class="text-[10px] sm:text-[11px] text-slate-400">Hai đường đi khác nhau cùng dẫn tới một điểm ngọn</p>
+          </div>
+        </div>
+        <button id="btnCloseModal" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-3 sm:p-5 overflow-y-auto space-y-3.5">
+        <div class="border border-slate-300 rounded-xl overflow-hidden bg-white math-grid relative h-64 sm:h-72 flex items-center justify-center shadow-inner">
+          <svg id="svgCombined" class="w-full h-full block" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="cArrow_blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+              </marker>
+              <marker id="cArrow_amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706" />
+              </marker>
+              <marker id="cArrow_purple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7c3aed" />
+              </marker>
+            </defs>
+            <g id="layerModalCombined"></g>
+          </svg>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+          <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-xl">
+            <div class="font-bold text-blue-900 mb-0.5">Cách a: $\overrightarrow{OA} + \overrightarrow{AB}$</div>
+            <div class="text-slate-600 text-[11px] sm:text-xs">
+              $O \xrightarrow{+ \overrightarrow{a}} A \xrightarrow{+ \overrightarrow{b}} B$<br>
+              Độ dời: ngang <strong>6 ô</strong>, đứng <strong>4 ô</strong>.
+            </div>
+          </div>
+          <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl">
+            <div class="font-bold text-amber-900 mb-0.5">Cách b: $\overrightarrow{OA'} + \overrightarrow{A'B'}$</div>
+            <div class="text-slate-600 text-[11px] sm:text-xs">
+              $O \xrightarrow{+ \overrightarrow{b}} A' \xrightarrow{+ \overrightarrow{a}} B'$<br>
+              Độ dời: ngang <strong>6 ô</strong>, đứng <strong>4 ô</strong>.
+            </div>
+          </div>
+          <div class="p-2.5 bg-purple-50 border border-purple-200 rounded-xl">
+            <div class="font-bold text-purple-900 mb-0.5">Quy tắc Hình bình hành</div>
+            <div class="text-slate-700 text-[11px] sm:text-xs">
+              $B$ và $B'$ <strong>trùng nhau</strong> ($B \equiv B'$):
+              <div class="font-bold text-purple-700 mt-0.5">$\overrightarrow{OB} = \overrightarrow{OB'}$</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-gradient-to-r from-indigo-900 to-purple-900 text-white rounded-xl flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-yellow-400 text-slate-900 flex items-center justify-center font-bold shrink-0">
+            <i class="fa-solid fa-crown text-sm"></i>
+          </div>
+          <div class="text-xs sm:text-sm">
+            <div class="font-bold text-yellow-300">Tính chất giao hoán của phép cộng vectơ:</div>
+            <div>Với mọi $\overrightarrow{a}, \overrightarrow{b}$, luôn có: <strong>$\overrightarrow{a} + \overrightarrow{b} = \overrightarrow{b} + \overrightarrow{a}$</strong>.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-4 py-2 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+        <button id="btnDismissModal" class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold">
+          Đóng lại
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const GRID_SIZE = 30;
+    const VEC_A = { dx: 4 * GRID_SIZE, dy: -1 * GRID_SIZE, color: "#2563eb", name: "a" };
+    const VEC_B = { dx: 2 * GRID_SIZE, dy: -3 * GRID_SIZE, color: "#d97706", name: "b" };
+    const O_POINT = { x: 3 * GRID_SIZE, y: 8 * GRID_SIZE };
+    const A_POINT = { x: O_POINT.x + VEC_A.dx, y: O_POINT.y + VEC_A.dy };
+    const B_POINT = { x: A_POINT.x + VEC_B.dx, y: A_POINT.y + VEC_B.dy };
+    const AP_POINT = { x: O_POINT.x + VEC_B.dx, y: O_POINT.y + VEC_B.dy };
+    const BP_POINT = { x: AP_POINT.x + VEC_A.dx, y: AP_POINT.y + VEC_A.dy };
+    const SNAP_RADIUS = 36;
+
+    const state = {
+      caseA: { step: 1, placedOA: false, placedAB: false, connectedOB: false },
+      caseB: { step: 1, placedOA_prime: false, placedAB_prime: false, connectedOB_prime: false }
+    };
+
+    function switchMobileTab(targetPanelId) {
+      const panelA = document.getElementById('panelCaseA');
+      const panelB = document.getElementById('panelCaseB');
+      const tabA = document.getElementById('tabBtnA');
+      const tabB = document.getElementById('tabBtnB');
+
+      if (targetPanelId === 'panelCaseA') {
+        panelA.classList.remove('hidden');
+        panelB.classList.add('hidden');
+        tabA.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-sm flex items-center justify-center gap-1.5";
+        tabB.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 flex items-center justify-center gap-1.5";
+      } else {
+        panelA.classList.add('hidden');
+        panelB.classList.remove('hidden');
+        panelB.classList.add('flex');
+        tabA.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 flex items-center justify-center gap-1.5";
+        tabB.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-amber-600 text-white shadow-sm flex items-center justify-center gap-1.5";
+      }
+    }
+
+    function renderMathText(element) {
+      if (!element) return;
+      if (window.renderMathInElement) {
+        renderMathInElement(element, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+    function renderAllMath() { renderMathText(document.body); }
+
+    let toastTimer = null;
+    function showToast(type, title, msg) {
+      const toast = document.getElementById('toast');
+      const toastIcon = document.getElementById('toastIcon');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMsg = document.getElementById('toastMsg');
+      if (toastTimer) clearTimeout(toastTimer);
+
+      const isSuccess = type === 'success';
+      const isWarn = type === 'warning';
+
+      toast.className = `fixed top-16 right-3 sm:right-4 z-50 pointer-events-none transform translate-y-0 opacity-100 toast-anim max-w-xs sm:max-w-sm w-full p-3 rounded-xl shadow-xl border flex items-center gap-3 ${
+        isSuccess ? 'bg-emerald-50 border-emerald-300 text-emerald-950' :
+        isWarn ? 'bg-amber-50 border-amber-300 text-amber-950' : 'bg-blue-50 border-blue-300 text-blue-950'
+      }`;
+
+      toastIcon.innerHTML = isSuccess ? '<i class="fa-solid fa-circle-check text-emerald-600"></i>' :
+                            isWarn ? '<i class="fa-solid fa-triangle-exclamation text-amber-600"></i>' :
+                            '<i class="fa-solid fa-circle-info text-blue-600"></i>';
+
+      toastTitle.innerText = title;
+      toastMsg.innerText = msg;
+
+      toastTimer = setTimeout(() => {
+        toast.classList.add('translate-y-[-16px]', 'opacity-0');
+      }, 2800);
+    }
+
+    function renderTrayVector(svgId, type, color) {
+      const svg = document.getElementById(svgId);
+      if (!svg) return;
+      svg.innerHTML = '';
+      const isVecA = type === 'a';
+      const dx = isVecA ? 56 : 30;
+      const dy = isVecA ? -12 : -26;
+      const startX = 6;
+      const startY = isVecA ? 20 : 30;
+      const markerId = `trayArrow_${type}_${svgId}`;
+
+      svg.innerHTML = `
+        <defs>
+          <marker id="${markerId}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="${color}" />
+          </marker>
+        </defs>
+        <line x1="${startX}" y1="${startY}" x2="${startX + dx}" y2="${startY + dy}" stroke="${color}" stroke-width="3" stroke-linecap="round" marker-end="url(#${markerId})" />
+        <circle cx="${startX}" cy="${startY}" r="3.5" fill="${color}" stroke="#fff" stroke-width="1.5" />
+      `;
+    }
+
+    function updatePedagogy() {
+      const badgeA = document.getElementById('badgeA');
+      const guideTextA = document.getElementById('guideTextA');
+      const btnConnectA = document.getElementById('btnConnectA');
+      const footerStatusA = document.getElementById('footerStatusA');
+      const dragContA_a = document.getElementById('dragContainerA_a');
+      const dragContA_b = document.getElementById('dragContainerA_b');
+
+      if (state.caseA.step === 1) {
+        badgeA.innerText = "Bước 1 / 3";
+        badgeA.className = "text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800";
+        guideTextA.innerHTML = 'Kéo <span class="text-blue-600 font-bold">$\\overrightarrow{a}$</span> đặt gốc vào điểm $O$ để dựng $\\overrightarrow{OA} = \\overrightarrow{a}$.';
+        btnConnectA.classList.add('hidden');
+        footerStatusA.innerHTML = '<i class="fa-solid fa-hand-pointer text-blue-500"></i> Kéo vectơ a vào điểm O';
+        dragContA_a.style.opacity = '1'; dragContA_b.style.opacity = '0.35';
+      } else if (state.caseA.step === 2) {
+        badgeA.innerText = "Bước 2 / 3";
+        badgeA.className = "text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800";
+        guideTextA.innerHTML = 'Kéo <span class="text-amber-600 font-bold">$\\overrightarrow{b}$</span> đặt gốc vào ngọn điểm $A$ để dựng $\\overrightarrow{AB} = \\overrightarrow{b}$.';
+        btnConnectA.classList.add('hidden');
+        footerStatusA.innerHTML = '<i class="fa-solid fa-hand-pointer text-amber-500"></i> Kéo vectơ b vào ngọn A';
+        dragContA_a.style.opacity = '0.35'; dragContA_b.style.opacity = '1';
+      } else if (state.caseA.step === 3) {
+        badgeA.innerText = "Bước 3 / 3";
+        badgeA.className = "text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800";
+        guideTextA.innerHTML = 'Nhấn nút để nối vectơ tổng $\\overrightarrow{OB} = \\overrightarrow{a} + \\overrightarrow{b}$.';
+        btnConnectA.classList.remove('hidden');
+        footerStatusA.innerHTML = '<i class="fa-solid fa-circle-check text-purple-600"></i> Sẵn sàng nối vectơ';
+        dragContA_a.style.opacity = '0.35'; dragContA_b.style.opacity = '0.35';
+      } else {
+        badgeA.innerText = "Xong";
+        badgeA.className = "text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
+        guideTextA.innerHTML = '<span class="text-emerald-700 font-semibold"><i class="fa-solid fa-check"></i> Đã hoàn thành: $\\overrightarrow{OB} = \\overrightarrow{a} + \\overrightarrow{b}$.</span>';
+        btnConnectA.classList.add('hidden');
+        footerStatusA.innerHTML = '<span class="text-emerald-700 font-bold">$\\overrightarrow{OB} = \\overrightarrow{a} + \\overrightarrow{b}$</span>';
+      }
+
+      const badgeB = document.getElementById('badgeB');
+      const guideTextB = document.getElementById('guideTextB');
+      const btnConnectB = document.getElementById('btnConnectB');
+      const footerStatusB = document.getElementById('footerStatusB');
+      const dragContB_b = document.getElementById('dragContainerB_b');
+      const dragContB_a = document.getElementById('dragContainerB_a');
+
+      if (state.caseB.step === 1) {
+        badgeB.innerText = "Bước 1 / 3";
+        badgeB.className = "text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800";
+        guideTextB.innerHTML = 'Kéo <span class="text-amber-600 font-bold">$\\overrightarrow{b}$</span> đặt gốc vào điểm $O$ để dựng $\\overrightarrow{OA\'} = \\overrightarrow{b}$.';
+        btnConnectB.classList.add('hidden');
+        footerStatusB.innerHTML = '<i class="fa-solid fa-hand-pointer text-amber-500"></i> Kéo vectơ b vào điểm O';
+        dragContB_b.style.opacity = '1'; dragContB_a.style.opacity = '0.35';
+      } else if (state.caseB.step === 2) {
+        badgeB.innerText = "Bước 2 / 3";
+        badgeB.className = "text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800";
+        guideTextB.innerHTML = 'Kéo <span class="text-blue-600 font-bold">$\\overrightarrow{a}$</span> đặt gốc vào ngọn điểm $A\'$ để dựng $\\overrightarrow{A\'B\'} = \\overrightarrow{a}$.';
+        btnConnectB.classList.add('hidden');
+        footerStatusB.innerHTML = '<i class="fa-solid fa-hand-pointer text-blue-500"></i> Kéo vectơ a vào ngọn A\'';
+        dragContB_b.style.opacity = '0.35'; dragContB_a.style.opacity = '1';
+      } else if (state.caseB.step === 3) {
+        badgeB.innerText = "Bước 3 / 3";
+        badgeB.className = "text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
+        guideTextB.innerHTML = 'Nhấn nút để nối vectơ tổng $\\overrightarrow{OB\'} = \\overrightarrow{b} + \\overrightarrow{a}$.';
+        btnConnectB.classList.remove('hidden');
+        footerStatusB.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i> Sẵn sàng nối vectơ';
+        dragContB_b.style.opacity = '0.35'; dragContB_a.style.opacity = '0.35';
+      } else {
+        badgeB.innerText = "Xong";
+        badgeB.className = "text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
+        guideTextB.innerHTML = '<span class="text-emerald-700 font-semibold"><i class="fa-solid fa-check"></i> Đã hoàn thành: $\\overrightarrow{OB\'} = \\overrightarrow{b} + \\overrightarrow{a}$.</span>';
+        btnConnectB.classList.add('hidden');
+        footerStatusB.innerHTML = '<span class="text-emerald-700 font-bold">$\\overrightarrow{OB\'} = \\overrightarrow{b} + \\overrightarrow{a}$</span>';
+      }
+
+      const btnOpenCompare = document.getElementById('btnOpenCompare');
+      if (state.caseA.step === 4 && state.caseB.step === 4) {
+        btnOpenCompare.disabled = false;
+        btnOpenCompare.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md hover:shadow-lg animate-pulse cursor-pointer transition";
+      } else {
+        btnOpenCompare.disabled = true;
+        btnOpenCompare.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-1.5 bg-slate-200 text-slate-400 cursor-not-allowed shadow-none";
+      }
+      renderAllMath();
+    }
+
+    function renderBoardA() {
+      const snapLayer = document.getElementById('layerSnapRingsA');
+      const placedLayer = document.getElementById('layerPlacedA');
+      snapLayer.innerHTML = ''; placedLayer.innerHTML = '';
+
+      if (state.caseA.step === 1) {
+        snapLayer.innerHTML = `
+          <circle cx="${O_POINT.x}" cy="${O_POINT.y}" r="18" fill="rgba(37, 99, 235, 0.2)" class="snap-ring-anim" />
+          <circle cx="${O_POINT.x}" cy="${O_POINT.y}" r="7" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="3,3" />
+        `;
+      } else if (state.caseA.step === 2) {
+        snapLayer.innerHTML = `
+          <circle cx="${A_POINT.x}" cy="${A_POINT.y}" r="18" fill="rgba(217, 119, 6, 0.25)" class="snap-ring-anim" />
+          <circle cx="${A_POINT.x}" cy="${A_POINT.y}" r="7" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="3,3" />
+        `;
+      }
+
+      if (state.caseA.placedOA) {
+        placedLayer.innerHTML += `
+          <line x1="${O_POINT.x}" y1="${O_POINT.y}" x2="${A_POINT.x}" y2="${A_POINT.y}" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrowHeadA_blue)" />
+          <circle cx="${A_POINT.x}" cy="${A_POINT.y}" r="5" fill="#2563eb" stroke="#ffffff" stroke-width="2" />
+          <text x="${A_POINT.x + 8}" y="${A_POINT.y + 16}" font-size="13" font-weight="bold" fill="#1d4ed8">A</text>
+          <g transform="translate(${(O_POINT.x + A_POINT.x) / 2 - 12}, ${(O_POINT.y + A_POINT.y) / 2 + 14})">
+            <rect x="-4" y="-7" width="26" height="19" rx="4" fill="rgba(255,255,255,0.85)" stroke="rgba(37,99,235,0.2)" stroke-width="0.8"/>
+            <text x="5" y="9" font-size="12" font-weight="bold" font-style="italic" fill="#2563eb">a</text>
+          </g>
+        `;
+      }
+
+      if (state.caseA.placedAB) {
+        placedLayer.innerHTML += `
+          <line x1="${A_POINT.x}" y1="${A_POINT.y}" x2="${B_POINT.x}" y2="${B_POINT.y}" stroke="#d97706" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrowHeadA_amber)" />
+          <circle cx="${B_POINT.x}" cy="${B_POINT.y}" r="5.5" fill="#d97706" stroke="#ffffff" stroke-width="2" />
+          <text x="${B_POINT.x + 8}" y="${B_POINT.y - 6}" font-size="13" font-weight="bold" fill="#b45309">B</text>
+          <g transform="translate(${(A_POINT.x + B_POINT.x) / 2 + 10}, ${(A_POINT.y + B_POINT.y) / 2 - 8})">
+            <rect x="-4" y="-7" width="26" height="19" rx="4" fill="rgba(255,255,255,0.85)" stroke="rgba(217,119,6,0.2)" stroke-width="0.8"/>
+            <text x="5" y="9" font-size="12" font-weight="bold" font-style="italic" fill="#d97706">b</text>
+          </g>
+        `;
+      }
+
+      if (state.caseA.connectedOB) {
+        placedLayer.innerHTML += `
+          <line x1="${O_POINT.x}" y1="${O_POINT.y}" x2="${B_POINT.x}" y2="${B_POINT.y}" stroke="#7c3aed" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowHeadA_purple)" />
+          <g transform="translate(${(O_POINT.x + B_POINT.x) / 2 - 50}, ${(O_POINT.y + B_POINT.y) / 2 - 24})">
+            <rect x="-4" y="-7" width="100" height="22" rx="5" fill="rgba(255,255,255,0.92)" stroke="rgba(124,58,237,0.3)" stroke-width="1" />
+            <text x="4" y="9" font-size="11" font-weight="bold" fill="#6b21a8">OB = a + b</text>
+          </g>
+        `;
+      }
+    }
+
+    function renderBoardB() {
+      const snapLayer = document.getElementById('layerSnapRingsB');
+      const placedLayer = document.getElementById('layerPlacedB');
+      snapLayer.innerHTML = ''; placedLayer.innerHTML = '';
+
+      if (state.caseB.step === 1) {
+        snapLayer.innerHTML = `
+          <circle cx="${O_POINT.x}" cy="${O_POINT.y}" r="18" fill="rgba(217, 119, 6, 0.25)" class="snap-ring-anim" />
+          <circle cx="${O_POINT.x}" cy="${O_POINT.y}" r="7" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="3,3" />
+        `;
+      } else if (state.caseB.step === 2) {
+        snapLayer.innerHTML = `
+          <circle cx="${AP_POINT.x}" cy="${AP_POINT.y}" r="18" fill="rgba(37, 99, 235, 0.2)" class="snap-ring-anim" />
+          <circle cx="${AP_POINT.x}" cy="${AP_POINT.y}" r="7" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="3,3" />
+        `;
+      }
+
+      if (state.caseB.placedOA_prime) {
+        placedLayer.innerHTML += `
+          <line x1="${O_POINT.x}" y1="${O_POINT.y}" x2="${AP_POINT.x}" y2="${AP_POINT.y}" stroke="#d97706" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrowHeadB_amber)" />
+          <circle cx="${AP_POINT.x}" cy="${AP_POINT.y}" r="5" fill="#d97706" stroke="#ffffff" stroke-width="2" />
+          <text x="${AP_POINT.x - 22}" y="${AP_POINT.y - 6}" font-size="13" font-weight="bold" fill="#b45309">A'</text>
+          <g transform="translate(${(O_POINT.x + AP_POINT.x) / 2 - 28}, ${(O_POINT.y + AP_POINT.y) / 2 - 8})">
+            <rect x="-4" y="-7" width="26" height="19" rx="4" fill="rgba(255,255,255,0.85)" stroke="rgba(217,119,6,0.2)" stroke-width="0.8"/>
+            <text x="5" y="9" font-size="12" font-weight="bold" font-style="italic" fill="#d97706">b</text>
+          </g>
+        `;
+      }
+
+      if (state.caseB.placedAB_prime) {
+        placedLayer.innerHTML += `
+          <line x1="${AP_POINT.x}" y1="${AP_POINT.y}" x2="${BP_POINT.x}" y2="${BP_POINT.y}" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrowHeadB_blue)" />
+          <circle cx="${BP_POINT.x}" cy="${BP_POINT.y}" r="5.5" fill="#2563eb" stroke="#ffffff" stroke-width="2" />
+          <text x="${BP_POINT.x + 8}" y="${BP_POINT.y - 6}" font-size="13" font-weight="bold" fill="#1d4ed8">B'</text>
+          <g transform="translate(${(AP_POINT.x + BP_POINT.x) / 2 - 12}, ${(AP_POINT.y + BP_POINT.y) / 2 - 20})">
+            <rect x="-4" y="-7" width="26" height="19" rx="4" fill="rgba(255,255,255,0.85)" stroke="rgba(37,99,235,0.2)" stroke-width="0.8"/>
+            <text x="5" y="9" font-size="12" font-weight="bold" font-style="italic" fill="#2563eb">a</text>
+          </g>
+        `;
+      }
+
+      if (state.caseB.connectedOB_prime) {
+        placedLayer.innerHTML += `
+          <line x1="${O_POINT.x}" y1="${O_POINT.y}" x2="${BP_POINT.x}" y2="${BP_POINT.y}" stroke="#059669" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowHeadB_emerald)" />
+          <g transform="translate(${(O_POINT.x + BP_POINT.x) / 2 - 18}, ${(O_POINT.y + BP_POINT.y) / 2 + 16})">
+            <rect x="-4" y="-7" width="100" height="22" rx="5" fill="rgba(255,255,255,0.92)" stroke="rgba(5,150,105,0.3)" stroke-width="1" />
+            <text x="4" y="9" font-size="11" font-weight="bold" fill="#047857">OB' = b + a</text>
+          </g>
+        `;
+      }
+    }
+
+    let activeDrag = null;
+    function getSvgCoordinates(svg, clientX, clientY) {
+      const rect = svg.getBoundingClientRect();
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function initDraggables() {
+      const trayItems = document.querySelectorAll('.vector-drag-item');
+      trayItems.forEach(item => {
+        item.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          const caseKey = item.dataset.case;
+          const type = item.dataset.type;
+
+          if (caseKey === 'caseA') {
+            if (state.caseA.step === 1 && type !== 'a') return showToast('warning', 'Chưa đúng lượt', 'Kéo vectơ a vào O trước.');
+            if (state.caseA.step === 2 && type !== 'b') return showToast('warning', 'Chưa đúng lượt', 'Kéo vectơ b vào ngọn A.');
+            if (state.caseA.step >= 3) return;
+          } else {
+            if (state.caseB.step === 1 && type !== 'b') return showToast('warning', 'Chưa đúng lượt', 'Kéo vectơ b vào O trước.');
+            if (state.caseB.step === 2 && type !== 'a') return showToast('warning', 'Chưa đúng lượt', 'Kéo vectơ a vào ngọn A\'.');
+            if (state.caseB.step >= 3) return;
+          }
+
+          item.setPointerCapture(e.pointerId);
+          const targetSvg = caseKey === 'caseA' ? document.getElementById('svgBoardA') : document.getElementById('svgBoardB');
+          const floatingLayer = caseKey === 'caseA' ? document.getElementById('layerFloatingA') : document.getElementById('layerFloatingB');
+          const vecConfig = type === 'a' ? VEC_A : VEC_B;
+          const coords = getSvgCoordinates(targetSvg, e.clientX, e.clientY);
+
+          floatingLayer.innerHTML = `
+            <g id="currentFloatingGroup">
+              <line x1="${coords.x}" y1="${coords.y}" x2="${coords.x + vecConfig.dx}" y2="${coords.y + vecConfig.dy}" 
+                    stroke="${vecConfig.color}" stroke-width="4" stroke-linecap="round" opacity="0.85" />
+              <circle cx="${coords.x}" cy="${coords.y}" r="6" fill="${vecConfig.color}" stroke="#ffffff" stroke-width="2" />
+            </g>
+          `;
+
+          activeDrag = { pointerId: e.pointerId, caseKey, type, targetSvg, floatingLayer, vecConfig };
+        });
+
+        item.addEventListener('pointermove', (e) => {
+          if (!activeDrag || activeDrag.pointerId !== e.pointerId) return;
+          e.preventDefault();
+          const coords = getSvgCoordinates(activeDrag.targetSvg, e.clientX, e.clientY);
+          const grp = document.getElementById('currentFloatingGroup');
+          if (grp) {
+            const line = grp.querySelector('line');
+            const circle = grp.querySelector('circle');
+            line.setAttribute('x1', coords.x);
+            line.setAttribute('y1', coords.y);
+            line.setAttribute('x2', coords.x + activeDrag.vecConfig.dx);
+            line.setAttribute('y2', coords.y + activeDrag.vecConfig.dy);
+            circle.setAttribute('cx', coords.x);
+            circle.setAttribute('cy', coords.y);
+          }
+        });
+
+        item.addEventListener('pointerup', (e) => {
+          if (!activeDrag || activeDrag.pointerId !== e.pointerId) return;
+          e.preventDefault();
+          item.releasePointerCapture(e.pointerId);
+          const dropCoords = getSvgCoordinates(activeDrag.targetSvg, e.clientX, e.clientY);
+          const { caseKey, type, floatingLayer } = activeDrag;
+          floatingLayer.innerHTML = '';
+          handleDropValidation(caseKey, type, dropCoords);
+          activeDrag = null;
+        });
+
+        item.addEventListener('pointercancel', (e) => {
+          if (activeDrag && activeDrag.pointerId === e.pointerId) {
+            activeDrag.floatingLayer.innerHTML = '';
+            activeDrag = null;
+          }
+        });
+      });
+    }
+
+    function getDistance(p1, p2) {
+      return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+    }
+
+    function handleDropValidation(caseKey, type, dropCoords) {
+      if (caseKey === 'caseA') {
+        if (state.caseA.step === 1 && type === 'a') {
+          if (getDistance(dropCoords, O_POINT) <= SNAP_RADIUS) {
+            state.caseA.placedOA = true; state.caseA.step = 2;
+            showToast('success', 'Chính xác!', 'Đã dựng xong OA = a.');
+            renderBoardA(); updatePedagogy();
+          } else showToast('warning', 'Chưa khớp', 'Kéo điểm đầu vào đúng tâm điểm O.');
+        } else if (state.caseA.step === 2 && type === 'b') {
+          if (getDistance(dropCoords, A_POINT) <= SNAP_RADIUS) {
+            state.caseA.placedAB = true; state.caseA.step = 3;
+            showToast('success', 'Rất tốt!', 'Đã dựng xong AB = b.');
+            renderBoardA(); updatePedagogy();
+          } else showToast('warning', 'Chưa khớp', 'Kéo điểm đầu vào đúng ngọn điểm A.');
+        }
+      } else {
+        if (state.caseB.step === 1 && type === 'b') {
+          if (getDistance(dropCoords, O_POINT) <= SNAP_RADIUS) {
+            state.caseB.placedOA_prime = true; state.caseB.step = 2;
+            showToast('success', 'Chính xác!', 'Đã dựng xong OA\' = b.');
+            renderBoardB(); updatePedagogy();
+          } else showToast('warning', 'Chưa khớp', 'Kéo điểm đầu vào đúng tâm điểm O.');
+        } else if (state.caseB.step === 2 && type === 'a') {
+          if (getDistance(dropCoords, AP_POINT) <= SNAP_RADIUS) {
+            state.caseB.placedAB_prime = true; state.caseB.step = 3;
+            showToast('success', 'Rất tốt!', 'Đã dựng xong A\'B\' = a.');
+            renderBoardB(); updatePedagogy();
+          } else showToast('warning', 'Chưa khớp', 'Kéo điểm đầu vào đúng ngọn điểm A\'.');
+        }
+      }
+    }
+
+    document.getElementById('btnConnectA').addEventListener('click', () => {
+      state.caseA.connectedOB = true; state.caseA.step = 4;
+      showToast('success', 'Hoàn thành câu a!', 'Đã dựng vectơ tổng OB = a + b.');
+      renderBoardA(); updatePedagogy(); checkBothCompleted();
+    });
+
+    document.getElementById('btnConnectB').addEventListener('click', () => {
+      state.caseB.connectedOB_prime = true; state.caseB.step = 4;
+      showToast('success', 'Hoàn thành câu b!', 'Đã dựng vectơ tổng OB\' = b + a.');
+      renderBoardB(); updatePedagogy(); checkBothCompleted();
+    });
+
+    function checkBothCompleted() {
+      if (state.caseA.step === 4 && state.caseB.step === 4) {
+        setTimeout(() => {
+          showToast('success', 'Xuất sắc!', 'Cả 2 câu đã xong. Nhấn "So sánh" để xem kết quả!');
+        }, 500);
+      }
+    }
+
+    const modalCompare = document.getElementById('modalCompare');
+    const btnOpenCompare = document.getElementById('btnOpenCompare');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnDismissModal = document.getElementById('btnDismissModal');
+    const layerModalCombined = document.getElementById('layerModalCombined');
+
+    function renderCombinedParallelogram() {
+      const mO = { x: 100, y: 190 };
+      const mA = { x: mO.x + VEC_A.dx, y: mO.y + VEC_A.dy };
+      const mAP = { x: mO.x + VEC_B.dx, y: mO.y + VEC_B.dy };
+      const mB = { x: mA.x + VEC_B.dx, y: mA.y + VEC_B.dy };
+
+      layerModalCombined.innerHTML = `
+        <polygon points="${mO.x},${mO.y} ${mA.x},${mA.y} ${mB.x},${mB.y} ${mAP.x},${mAP.y}" 
+                 fill="rgba(124, 58, 237, 0.08)" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4" />
+
+        <line x1="${mO.x}" y1="${mO.y}" x2="${mA.x}" y2="${mA.y}" stroke="#2563eb" stroke-width="3" marker-end="url(#cArrow_blue)" />
+        <line x1="${mA.x}" y1="${mA.y}" x2="${mB.x}" y2="${mB.y}" stroke="#d97706" stroke-width="3" marker-end="url(#cArrow_amber)" />
+        <line x1="${mO.x}" y1="${mO.y}" x2="${mAP.x}" y2="${mAP.y}" stroke="#d97706" stroke-width="3" marker-end="url(#cArrow_amber)" />
+        <line x1="${mAP.x}" y1="${mAP.y}" x2="${mB.x}" y2="${mB.y}" stroke="#2563eb" stroke-width="3" marker-end="url(#cArrow_blue)" />
+        <line x1="${mO.x}" y1="${mO.y}" x2="${mB.x}" y2="${mB.y}" stroke="#7c3aed" stroke-width="4.5" marker-end="url(#cArrow_purple)" />
+
+        <circle cx="${mO.x}" cy="${mO.y}" r="5" fill="#0f172a" stroke="#fff" stroke-width="2" />
+        <text x="${mO.x - 18}" y="${mO.y + 14}" font-size="13" font-weight="bold" fill="#0f172a">O</text>
+
+        <circle cx="${mA.x}" cy="${mA.y}" r="5" fill="#2563eb" stroke="#fff" stroke-width="2" />
+        <text x="${mA.x + 8}" y="${mA.y + 14}" font-size="13" font-weight="bold" fill="#2563eb">A</text>
+
+        <circle cx="${mAP.x}" cy="${mAP.y}" r="5" fill="#d97706" stroke="#fff" stroke-width="2" />
+        <text x="${mAP.x - 22}" y="${mAP.y - 6}" font-size="13" font-weight="bold" fill="#d97706">A'</text>
+
+        <circle cx="${mB.x}" cy="${mB.y}" r="6" fill="#7c3aed" stroke="#fff" stroke-width="2.5" />
+        <text x="${mB.x + 8}" y="${mB.y - 6}" font-size="14" font-weight="900" fill="#7c3aed">B ≡ B'</text>
+      `;
+    }
+
+    btnOpenCompare.addEventListener('click', () => {
+      renderCombinedParallelogram();
+      modalCompare.classList.remove('hidden');
+      modalCompare.classList.add('flex');
+      renderMathText(modalCompare);
+    });
+
+    function closeModal() {
+      modalCompare.classList.add('hidden');
+      modalCompare.classList.remove('flex');
+    }
+    btnCloseModal.addEventListener('click', closeModal);
+    btnDismissModal.addEventListener('click', closeModal);
+
+    document.getElementById('btnResetAll').addEventListener('click', () => {
+      state.caseA = { step: 1, placedOA: false, placedAB: false, connectedOB: false };
+      state.caseB = { step: 1, placedOA_prime: false, placedAB_prime: false, connectedOB_prime: false };
+      renderBoardA(); renderBoardB(); updatePedagogy();
+      showToast('info', 'Đã đặt lại', 'Bắt đầu lại từ bước 1.');
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderTrayVector('svgTrayA_a', 'a', '#2563eb');
+      renderTrayVector('svgTrayA_b', 'b', '#d97706');
+      renderTrayVector('svgTrayB_b', 'b', '#d97706');
+      renderTrayVector('svgTrayB_a', 'a', '#2563eb');
+      renderBoardA(); renderBoardB(); initDraggables(); updatePedagogy();
+
+      const checkKatex = setInterval(() => {
+        if (window.renderMathInElement) {
+          clearInterval(checkKatex);
+          renderAllMath();
+        }
+      }, 50);
+    });
+  </script>
+</body>
+</html>
