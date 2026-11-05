@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Khám phá Tính chất Kết hợp của Phép cộng Vectơ - Toán 10</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- KaTeX CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    /* Grid ô vuông chuẩn 28px */
+    .math-grid {
+      background-size: 28px 28px;
+      background-image: 
+        linear-gradient(to right, rgba(148, 163, 184, 0.35) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.35) 1px, transparent 1px);
+      background-position: 0 0;
+    }
+
+    /* Xưởng lắp ghép ngoài lưới */
+    .workshop-bg {
+      background-color: #f8fafc;
+      background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+      background-size: 14px 14px;
+    }
+
+    /* Hiệu ứng kéo thả */
+    .vector-drag-item {
+      cursor: grab;
+      touch-action: none;
+      transition: filter 0.15s ease, transform 0.1s ease;
+    }
+    .vector-drag-item:active {
+      cursor: grabbing;
+      filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.28));
+    }
+
+    /* Hiệu ứng vòng nhấp nháy tâm đích */
+    @keyframes pulseTargetRing {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.5); opacity: 0.25; }
+    }
+    .snap-ring-anim {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: pulseTargetRing 1.3s infinite ease-in-out;
+    }
+
+    /* Vẽ nét vectơ động */
+    .animated-vector {
+      stroke-dasharray: 400;
+      stroke-dashoffset: 400;
+      animation: drawVector 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes drawVector {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .toast-anim {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen flex flex-col overflow-hidden">
+
+  <!-- ================= TOP HEADER ================= -->
+  <header class="bg-white border-b border-slate-200 px-4 py-2 shadow-sm shrink-0 z-30">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shrink-0">
+          <i class="fa-solid fa-shapes text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+            Nhiệm vụ 2: Lắp Ghép &amp; Tính Chất Kết Hợp Phép Cộng Vectơ
+          </h1>
+          <p class="text-xs text-slate-500 font-medium">Lắp ghép khối ngoài lưới, gắn vào điểm $O$ trên lưới ô vuông và so sánh vectơ tổng</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex items-center gap-2">
+        <button id="btnOpenCompare" disabled
+          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition-all bg-slate-200 text-slate-400 cursor-not-allowed shadow-none">
+          <i class="fa-solid fa-code-compare"></i>
+          <span>So sánh $(\overrightarrow{a}+\overrightarrow{b})+\overrightarrow{c}$ &amp; $\overrightarrow{a}+(\overrightarrow{b}+\overrightarrow{c})$</span>
+        </button>
+        <button id="btnResetAll"
+          class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span>Làm lại</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Problem summary banner -->
+  <div class="bg-slate-900 text-slate-200 px-4 py-2 shrink-0 border-b border-slate-800 text-xs sm:text-sm">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-600 text-white uppercase">Bài toán</span>
+        <span>Cho 3 vectơ: $\overrightarrow{a} = (1, 3)$, $\overrightarrow{b} = (4, 1)$, $\overrightarrow{c} = (3, -1)$ và điểm $O$ tùy ý:</span>
+      </div>
+      <div class="flex items-center gap-4 text-xs font-medium">
+        <span class="inline-flex items-center gap-1.5 text-blue-300">
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> $\overrightarrow{a} = (1, 3)$
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-amber-300">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> $\overrightarrow{b} = (4, 1)$
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-emerald-300">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> $\overrightarrow{c} = (3, -1)$
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification banner -->
+  <div id="toast" class="fixed top-20 right-4 z-50 pointer-events-none transform translate-y-[-16px] opacity-0 toast-anim max-w-sm w-full p-3.5 rounded-xl shadow-xl border flex items-center gap-3">
+    <div id="toastIcon" class="text-xl shrink-0"></div>
+    <div class="flex-1">
+      <div id="toastTitle" class="text-xs font-bold uppercase tracking-wider"></div>
+      <div id="toastMsg" class="text-xs mt-0.5 font-medium leading-snug"></div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN CONTAINER (Hai cột Trái - Phải) ================= -->
+  <main class="max-w-7xl mx-auto w-full p-2.5 sm:p-3 flex-1 flex flex-col min-h-0 overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 flex-1 min-h-0 items-stretch">
+
+      <!-- ==================== CỘT TRÁI: TRƯỜNG HỢP a ==================== -->
+      <section id="panelCaseA" class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col min-h-0 overflow-hidden">
+        <!-- Panel Header -->
+        <div class="px-3.5 py-2 bg-blue-50/80 border-b border-blue-100 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded bg-blue-600 text-white font-bold text-xs flex items-center justify-center">a</span>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">Xác định $(\overrightarrow{a} + \overrightarrow{b}) + \overrightarrow{c}$</h2>
+          </div>
+          <span id="badgeA" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">Bước 1 / 4</span>
+        </div>
+
+        <!-- Instruction Message -->
+        <div class="px-3.5 py-1.5 bg-slate-50 border-b border-slate-200 text-xs shrink-0">
+          <div id="guideTextA" class="text-slate-700 font-medium leading-tight">
+            <!-- Dynamic Math text -->
+          </div>
+        </div>
+
+        <!-- VÙNG 1: XƯỞNG LẮP GHÉP NGOÀI LƯỚI (WORKSHOP ZONE) -->
+        <div class="p-2.5 workshop-bg border-b border-slate-200 shrink-0 flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              <i class="fa-solid fa-screwdriver-wrench text-blue-600"></i> Xưởng lắp ghép :
+            </span>
+            <span id="workshopStatusA" class="text-[11px] font-semibold text-blue-700 italic"></span>
+          </div>
+
+          <!-- Bàn làm việc chứa khối thao tác ngoài lưới -->
+          <div id="workshopBenchA" class="bg-white/95 rounded-lg border border-slate-300 p-2 min-h-[92px] flex items-center justify-around gap-2 shadow-xs">
+            <!-- Dynamic Workshop Elements -->
+          </div>
+        </div>
+
+        <!-- VÙNG 2: BẢNG LƯỚI Ô VUÔNG 28px -->
+        <div class="relative flex-1 bg-white math-grid min-h-[240px] overflow-hidden">
+          <svg id="svgBoardA" class="w-full h-full absolute inset-0 block select-none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrow_blue_a" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+              </marker>
+              <marker id="arrow_amber_a" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706" />
+              </marker>
+              <marker id="arrow_emerald_a" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669" />
+              </marker>
+              <marker id="arrow_purple_a" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7c3aed" />
+              </marker>
+              <marker id="arrow_rose_a" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#e11d48" />
+              </marker>
+            </defs>
+
+            <!-- Gốc O cố định (56, 266) -->
+            <g id="staticLayerA">
+              <circle cx="56" cy="266" r="5.5" fill="#0f172a" stroke="#ffffff" stroke-width="2" />
+              <text x="36" y="278" font-size="14" font-weight="bold" fill="#0f172a">O</text>
+            </g>
+
+            <g id="pulseLayerA"></g>
+            <g id="placedLayerA"></g>
+            <g id="floatingLayerA"></g>
+          </svg>
+        </div>
+
+        <!-- Panel Footer -->
+        <div class="px-3.5 py-2 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+          <div id="footerStatusA" class="text-xs text-slate-500 font-medium">
+            <i class="fa-solid fa-hand-pointer text-blue-500 mr-1"></i> Ghép b vào ngọn của a trong xưởng ngoài lưới
+          </div>
+          <button id="btnConnectA" class="hidden px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white rounded-lg text-xs font-bold shadow transition flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Nối $(\overrightarrow{a}+\overrightarrow{b})+\overrightarrow{c}$</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================== CỘT PHẢI: TRƯỜNG HỢP b ==================== -->
+      <section id="panelCaseB" class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col min-h-0 overflow-hidden">
+        <!-- Panel Header -->
+        <div class="px-3.5 py-2 bg-amber-50/80 border-b border-amber-100 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded bg-amber-600 text-white font-bold text-xs flex items-center justify-center">b</span>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">Xác định $\overrightarrow{a} + (\overrightarrow{b} + \overrightarrow{c})$</h2>
+          </div>
+          <span id="badgeB" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Bước 1 / 4</span>
+        </div>
+
+        <!-- Instruction Message -->
+        <div class="px-3.5 py-1.5 bg-slate-50 border-b border-slate-200 text-xs shrink-0">
+          <div id="guideTextB" class="text-slate-700 font-medium leading-tight">
+            <!-- Dynamic Math text -->
+          </div>
+        </div>
+
+        <!-- VÙNG 1: XƯỞNG LẮP GHÉP NGOÀI LƯỚI (WORKSHOP ZONE) -->
+        <div class="p-2.5 workshop-bg border-b border-slate-200 shrink-0 flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              <i class="fa-solid fa-screwdriver-wrench text-amber-600"></i> Xưởng lắp ghép:
+            </span>
+            <span id="workshopStatusB" class="text-[11px] font-semibold text-amber-700 italic"></span>
+          </div>
+
+          <div id="workshopBenchB" class="bg-white/95 rounded-lg border border-slate-300 p-2 min-h-[92px] flex items-center justify-around gap-2 shadow-xs">
+            <!-- Dynamic Workshop Elements -->
+          </div>
+        </div>
+
+        <!-- VÙNG 2: BẢNG LƯỚI Ô VUÔNG 28px -->
+        <div class="relative flex-1 bg-white math-grid min-h-[240px] overflow-hidden">
+          <svg id="svgBoardB" class="w-full h-full absolute inset-0 block select-none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrow_blue_b" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+              </marker>
+              <marker id="arrow_amber_b" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706" />
+              </marker>
+              <marker id="arrow_emerald_b" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669" />
+              </marker>
+              <marker id="arrow_cyan_b" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#0891b2" />
+              </marker>
+              <marker id="arrow_rose_b" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#e11d48" />
+              </marker>
+            </defs>
+
+            <!-- Gốc O cố định (56, 266) -->
+            <g id="staticLayerB">
+              <circle cx="56" cy="266" r="5.5" fill="#0f172a" stroke="#ffffff" stroke-width="2" />
+              <text x="36" y="278" font-size="14" font-weight="bold" fill="#0f172a">O</text>
+            </g>
+
+            <g id="pulseLayerB"></g>
+            <g id="placedLayerB"></g>
+            <g id="floatingLayerB"></g>
+          </svg>
+        </div>
+
+        <!-- Panel Footer -->
+        <div class="px-3.5 py-2 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+          <div id="footerStatusB" class="text-xs text-slate-500 font-medium">
+            <i class="fa-solid fa-hand-pointer text-amber-500 mr-1"></i> Ghép c vào ngọn của b trong xưởng ngoài lưới
+          </div>
+          <button id="btnConnectB" class="hidden px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white rounded-lg text-xs font-bold shadow transition flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Nối $\overrightarrow{a}+(\overrightarrow{b}+\overrightarrow{c})$</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= MODAL CHẬP SO SÁNH ================= -->
+  <div id="modalCompare" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-sm shadow">
+            <i class="fa-solid fa-object-ungroup"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base">So Sánh &amp; Khám Phá: $(\overrightarrow{a}+\overrightarrow{b})+\overrightarrow{c} = \overrightarrow{a}+(\overrightarrow{b}+\overrightarrow{c})$</h3>
+            <p class="text-[11px] text-slate-400">Hai cách ghép khối trung gian khác nhau cùng tạo ra chung một vectơ tổng $\overrightarrow{OC}$</p>
+          </div>
+        </div>
+        <button id="btnCloseModal" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4">
+        <!-- SVG Chập hình chung -->
+        <div class="border border-slate-300 rounded-xl overflow-hidden bg-white math-grid relative h-80 flex items-center justify-center shadow-inner">
+          <svg id="svgCombined" class="w-full h-full block" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="m_blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+              </marker>
+              <marker id="m_amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706" />
+              </marker>
+              <marker id="m_emerald" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669" />
+              </marker>
+              <marker id="m_purple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7c3aed" />
+              </marker>
+              <marker id="m_cyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#0891b2" />
+              </marker>
+              <marker id="m_rose" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#e11d48" />
+              </marker>
+            </defs>
+            <g id="layerModalCombined"></g>
+          </svg>
+        </div>
+
+        <!-- Comparative Explanation Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl">
+            <div class="font-bold text-blue-900 mb-1 flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Nhánh a: Ghép $(\overrightarrow{a} + \overrightarrow{b})$ trước
+            </div>
+            <div class="text-slate-600 leading-relaxed">
+              &bull; $\overrightarrow{OA} + \overrightarrow{AB} = \mathbf{\overrightarrow{OB}} = (1+4, 3+1) = \mathbf{(5, 4)}$<br>
+              &bull; $\mathbf{\overrightarrow{OB}} + \overrightarrow{BC} = \mathbf{\overrightarrow{OC}} = (5+3, 4-1) = \mathbf{(8, 3)}$<br>
+              &bull; Độ dời tổng: sang phải <strong>8 ô</strong>, lên trên <strong>3 ô</strong>.
+            </div>
+          </div>
+
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+            <div class="font-bold text-amber-900 mb-1 flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span> Nhánh b: Ghép $(\overrightarrow{b} + \overrightarrow{c})$ trước
+            </div>
+            <div class="text-slate-600 leading-relaxed">
+              &bull; $\overrightarrow{AB} + \overrightarrow{BC} = \mathbf{\overrightarrow{AC}} = (4+3, 1-1) = \mathbf{(7, 0)}$ (nằm ngang)<br>
+              &bull; $\overrightarrow{OA} + \mathbf{\overrightarrow{AC}} = \mathbf{\overrightarrow{OC}} = (1+7, 3+0) = \mathbf{(8, 3)}$<br>
+              &bull; Độ dời tổng: sang phải <strong>8 ô</strong>, lên trên <strong>3 ô</strong>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Final Theorem Banner -->
+        <div class="p-3.5 bg-gradient-to-r from-indigo-900 via-purple-900 to-rose-900 text-white rounded-xl flex items-center gap-3 shadow-md">
+          <div class="w-10 h-10 rounded-lg bg-yellow-400 text-slate-900 flex items-center justify-center font-bold text-lg shrink-0">
+            <i class="fa-solid fa-crown"></i>
+          </div>
+          <div class="text-xs sm:text-sm">
+            <div class="font-bold text-yellow-300">Tính chất kết hợp của phép cộng vectơ (Kết luận câu c):</div>
+            <div>Với ba vectơ $\overrightarrow{a}, \overrightarrow{b}, \overrightarrow{c}$ tùy ý, ta luôn có: <strong>$(\overrightarrow{a} + \overrightarrow{b}) + \overrightarrow{c} = \overrightarrow{a} + (\overrightarrow{b} + \overrightarrow{c}) = \overrightarrow{a} + \overrightarrow{b} + \overrightarrow{c}$</strong>.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-2.5 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+        <button id="btnDismissModal" class="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition">
+          Đóng lại
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Audio Chimes using Web Audio API -->
+  <script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playChime(type) {
+      if (!audioCtx) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'snap') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } else if (type === 'error') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.15);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } else if (type === 'victory') {
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.connect(g);
+          g.connect(audioCtx.destination);
+          o.frequency.setValueAtTime(freq, now + idx * 0.08);
+          g.gain.setValueAtTime(0.18, now + idx * 0.08);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.4);
+          o.start(now + idx * 0.08);
+          o.stop(now + idx * 0.08 + 0.4);
+        });
+      }
+    }
+  </script>
+
+  <!-- Core Logic Script -->
+  <script>
+    /* ================= 1. HỆ TỌA ĐỘ VECTƠ CHUẨN ĐÚNG THEO ĐỀ XUẤT ================= */
+    // Grid chuẩn 28px
+    const GRID = 28;
+
+    // a = (1, 3) -> dx = +1 * GRID, dy = -3 * GRID
+    const VEC_A = { dx: 1 * GRID, dy: -3 * GRID, color: "#2563eb", name: "a" };
+
+    // b = (4, 1) -> dx = +4 * GRID, dy = -1 * GRID
+    const VEC_B = { dx: 4 * GRID, dy: -1 * GRID, color: "#d97706", name: "b" };
+
+    // c = (3, -1) -> dx = +3 * GRID, dy = +1 * GRID (đi xuống 1 ô)
+    const VEC_C = { dx: 3 * GRID, dy: 1 * GRID, color: "#059669", name: "c" };
+
+    // Gốc O đặt tại (56, 266) nằm góc dưới bên trái
+    const O_PT = { x: 2 * GRID, y: 9.5 * GRID }; // (56, 266)
+
+    // Các điểm đỉnh trên lưới:
+    // A = O + a = (56 + 28, 266 - 84) = (84, 182)
+    const A_PT = { x: O_PT.x + VEC_A.dx, y: O_PT.y + VEC_A.dy };
+
+    // B = A + b = (84 + 112, 182 - 28) = (196, 154)
+    const B_PT = { x: A_PT.x + VEC_B.dx, y: A_PT.y + VEC_B.dy };
+
+    // C = B + c = (196 + 84, 154 + 28) = (280, 182)
+    const C_PT = { x: B_PT.x + VEC_C.dx, y: B_PT.y + VEC_C.dy };
+
+    // Bán kính snap
+    const SNAP_RADIUS = 34;
+
+    /* ================= 2. QUẢN LÝ TIẾN TRÌNH THAO TÁC ================= */
+    const state = {
+      caseA: {
+        step: 1, // 1: ghép b vào a ngoài xưởng; 2: kéo khối (a+b) vào O; 3: kéo c vào B; 4: nối OC; 5: xong
+        assembledAB: false,
+        placedAB_onBoard: false,
+        placedC_onBoard: false,
+        connectedTotalOC: false
+      },
+      caseB: {
+        step: 1, // 1: ghép c vào ngọn b trong xưởng; 2: kéo a vào O; 3: kéo khối (b+c) vào ngọn A; 4: nối OC; 5: xong
+        assembledBC: false,
+        placedA_onBoard: false,
+        placedBC_onBoard: false,
+        connectedTotalOC: false
+      }
+    };
+
+    /* ================= 3. RENDER KATEX CHUẨN XÁC ================= */
+    function renderMathText(el) {
+      if (!el) return;
+      if (window.renderMathInElement) {
+        renderMathInElement(el, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+    function renderAllMath() {
+      renderMathText(document.body);
+    }
+
+    /* ================= 4. HÀM TẠO NHÃN VECTƠ CÓ DẤU MŨI TÊN TRÊN ĐẦU & NỀN PILL CHỐNG ĐÈ ================= */
+    function makeVectorLabelSVG(x, y, text, color, markerId, customWidth = 0) {
+      // Nhãn đơn: a, b, c
+      if (text.length === 1) {
+        const w = customWidth || 28;
+        return `
+          <g transform="translate(${x}, ${y})">
+            <rect x="-${w/2}" y="-13" width="${w}" height="22" rx="6" 
+                  fill="rgba(255, 255, 255, 0.94)" stroke="${color}" stroke-width="1.2" 
+                  filter="drop-shadow(0 1px 3px rgba(0,0,0,0.08))" />
+            <!-- Mũi tên vectơ đặt chính xác trên đầu chữ cái -->
+            <line x1="-5" y1="-5.5" x2="6" y2="-5.5" 
+                  stroke="${color}" stroke-width="1.5" stroke-linecap="round" marker-end="url(#${markerId})" />
+            <text x="0" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">${text}</text>
+          </g>
+        `;
+      }
+
+      // Biểu thức ghép: a + b, b + c, (a + b) + c, a + (b + c)
+      const w = customWidth || (text.length * 7.5 + 24);
+      let content = '';
+
+      if (text === "a + b") {
+        content = `
+          <!-- a -->
+          <line x1="-19" y1="-5.5" x2="-9" y2="-5.5" stroke="${color}" stroke-width="1.4" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="-14" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">a</text>
+          <!-- dấu + -->
+          <text x="-1" y="4" font-size="12" font-weight="700" fill="${color}" text-anchor="middle">+</text>
+          <!-- b -->
+          <line x1="7" y1="-5.5" x2="17" y2="-5.5" stroke="${color}" stroke-width="1.4" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="12" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">b</text>
+        `;
+      } else if (text === "b + c") {
+        content = `
+          <!-- b -->
+          <line x1="-19" y1="-5.5" x2="-9" y2="-5.5" stroke="${color}" stroke-width="1.4" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="-14" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">b</text>
+          <!-- dấu + -->
+          <text x="-1" y="4" font-size="12" font-weight="700" fill="${color}" text-anchor="middle">+</text>
+          <!-- c -->
+          <line x1="7" y1="-5.5" x2="17" y2="-5.5" stroke="${color}" stroke-width="1.4" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="12" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">c</text>
+        `;
+      } else if (text === "(a + b) + c") {
+        content = `
+          <text x="-36" y="4" font-size="12" font-weight="700" fill="${color}">(</text>
+          <line x1="-31" y1="-5.5" x2="-21" y2="-5.5" stroke="${color}" stroke-width="1.3" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="-26" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">a</text>
+          <text x="-14" y="4" font-size="12" font-weight="700" fill="${color}">+</text>
+          <line x1="-5" y1="-5.5" x2="5" y2="-5.5" stroke="${color}" stroke-width="1.3" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="0" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">b</text>
+          <text x="8" y="4" font-size="12" font-weight="700" fill="${color}">)</text>
+          <text x="18" y="4" font-size="12" font-weight="700" fill="${color}">+</text>
+          <line x1="27" y1="-5.5" x2="37" y2="-5.5" stroke="${color}" stroke-width="1.3" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="32" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">c</text>
+        `;
+      } else if (text === "a + (b + c)") {
+        content = `
+          <line x1="-36" y1="-5.5" x2="-26" y2="-5.5" stroke="${color}" stroke-width="1.3" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="-31" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">a</text>
+          <text x="-19" y="4" font-size="12" font-weight="700" fill="${color}">+</text>
+          <text x="-9" y="4" font-size="12" font-weight="700" fill="${color}">(</text>
+          <line x1="-4" y1="-5.5" x2="6" y2="-5.5" stroke="${color}" stroke-width="1.3" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="1" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">b</text>
+          <text x="12" y="4" font-size="12" font-weight="700" fill="${color}">+</text>
+          <line x1="21" y1="-5.5" x2="31" y2="-5.5" stroke="${color}" stroke-width="1.3" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="26" y="4.5" font-size="12" font-weight="700" font-style="italic" fill="${color}" text-anchor="middle">c</text>
+          <text x="36" y="4" font-size="12" font-weight="700" fill="${color}">)</text>
+        `;
+      } else {
+        content = `
+          <line x1="-12" y1="-5.5" x2="12" y2="-5.5" stroke="${color}" stroke-width="1.4" stroke-linecap="round" marker-end="url(#${markerId})" />
+          <text x="0" y="4.5" font-size="12" font-weight="700" fill="${color}" text-anchor="middle">${text}</text>
+        `;
+      }
+
+      return `
+        <g transform="translate(${x}, ${y})">
+          <rect x="-${w/2}" y="-13" width="${w}" height="22" rx="6" 
+                fill="rgba(255, 255, 255, 0.94)" stroke="${color}" stroke-width="1.2" 
+                filter="drop-shadow(0 1px 3px rgba(0,0,0,0.08))" />
+          ${content}
+        </g>
+      `;
+    }
+
+    /* ================= 5. HỆ THỐNG THÔNG BÁO SƯ PHẠM (TOAST) ================= */
+    let toastTimer = null;
+    function showToast(type, title, msg) {
+      const toast = document.getElementById('toast');
+      const toastIcon = document.getElementById('toastIcon');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMsg = document.getElementById('toastMsg');
+
+      if (toastTimer) clearTimeout(toastTimer);
+
+      const isSuccess = type === 'success';
+      const isWarn = type === 'warning';
+      const isVictory = type === 'victory';
+
+      toast.className = `fixed top-20 right-4 z-50 pointer-events-none transform translate-y-0 opacity-100 toast-anim max-w-sm w-full p-3.5 rounded-xl shadow-xl border flex items-center gap-3 ${
+        isVictory ? 'bg-purple-50 border-purple-300 text-purple-950' :
+        isSuccess ? 'bg-emerald-50 border-emerald-300 text-emerald-950' :
+        isWarn ? 'bg-amber-50 border-amber-300 text-amber-950' : 'bg-blue-50 border-blue-300 text-blue-950'
+      }`;
+
+      toastIcon.innerHTML = isVictory ? '<i class="fa-solid fa-crown text-purple-600"></i>' :
+                            isSuccess ? '<i class="fa-solid fa-circle-check text-emerald-600"></i>' :
+                            isWarn ? '<i class="fa-solid fa-triangle-exclamation text-amber-600"></i>' :
+                            '<i class="fa-solid fa-circle-info text-blue-600"></i>';
+
+      toastTitle.innerText = title;
+      toastMsg.innerText = msg;
+
+      if (isVictory) playChime('victory');
+      else if (isSuccess) playChime('snap');
+      else if (isWarn) playChime('error');
+
+      toastTimer = setTimeout(() => {
+        toast.classList.add('translate-y-[-16px]', 'opacity-0');
+      }, 3000);
+    }
+
+    /* ================= 6. RENDER XƯỞNG LẮP GHÉP NGOÀI LƯỚI ================= */
+    function renderWorkshopA() {
+      const bench = document.getElementById('workshopBenchA');
+      const status = document.getElementById('workshopStatusA');
+      bench.innerHTML = '';
+
+      if (state.caseA.step === 1) {
+        status.innerText = "Kéo b vào ngọn của a";
+        bench.innerHTML = `
+          <!-- Đế ghép vectơ a cố định -->
+          <div class="flex items-center gap-2 p-1.5 bg-slate-50 border border-slate-300 rounded-lg">
+            <span class="text-[11px] font-bold text-blue-700">Đế a:</span>
+            <svg id="assemblySlotA_a" width="60" height="70" class="border border-blue-200 bg-white rounded">
+              <!-- a = (1, 3): từ (15, 60) đến (15+24, 60-50) = (39, 10) -->
+              <line x1="15" y1="58" x2="35" y2="14" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow_blue_a)" />
+              <circle cx="15" cy="58" r="3.5" fill="#2563eb" />
+              <!-- Điểm đích nhấp nháy tại ngọn a -->
+              <circle cx="35" cy="14" r="10" fill="rgba(217, 119, 6, 0.3)" class="snap-ring-anim" />
+              <circle cx="35" cy="14" r="4" fill="#d97706" />
+              <text x="14" y="36" font-size="11" font-weight="bold" font-style="italic" fill="#2563eb">a</text>
+            </svg>
+          </div>
+
+          <!-- Vectơ b tự do kéo thả -->
+          <div class="flex items-center gap-1.5 p-1.5 bg-amber-50 border border-amber-300 rounded-lg">
+            <span class="text-[11px] font-bold text-amber-700">$\\overrightarrow{b}$:</span>
+            <svg width="84" height="42" class="vector-drag-item" data-case="caseA" data-type="tray_b">
+              <!-- b = (4, 1): từ (10, 28) đến (10+64, 28-16) = (74, 12) -->
+              <line x1="10" y1="28" x2="72" y2="13" stroke="#d97706" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow_amber_a)" />
+              <circle cx="10" cy="28" r="4" fill="#d97706" stroke="#fff" stroke-width="1.5" />
+            </svg>
+          </div>
+        `;
+      } else if (state.caseA.step === 2) {
+        status.innerText = "Khối (a+b) sẵn sàng kéo vào điểm O";
+        bench.innerHTML = `
+          <!-- Khối liên kết đã ghép xong (a+b) -->
+          <div class="flex items-center gap-2 p-1.5 bg-purple-50 border-2 border-purple-400 rounded-lg shadow-sm">
+            <span class="text-[11px] font-bold text-purple-800 flex items-center gap-1">
+              <i class="fa-solid fa-arrows-to-dot"></i> Khối $(\\overrightarrow{a}+\\overrightarrow{b})$:
+            </span>
+            <svg width="120" height="65" class="vector-drag-item" data-case="caseA" data-type="block_ab">
+              <!-- a: (12, 54) -> (30, 20) -->
+              <line x1="12" y1="54" x2="30" y2="20" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow_blue_a)" />
+              <!-- b: (30, 20) -> (100, 8) -->
+              <line x1="30" y1="20" x2="100" y2="8" stroke="#d97706" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow_amber_a)" />
+              <circle cx="12" cy="54" r="4.5" fill="#7c3aed" stroke="#fff" stroke-width="1.5" />
+            </svg>
+          </div>
+        `;
+      } else if (state.caseA.step === 3) {
+        status.innerText = "Kéo c vào ngọn B trên lưới";
+        bench.innerHTML = `
+          <!-- Vectơ c kéo vào điểm B -->
+          <div class="flex items-center gap-2 p-1.5 bg-emerald-50 border border-emerald-300 rounded-lg">
+            <span class="text-[11px] font-bold text-emerald-800">$\\overrightarrow{c}$:</span>
+            <svg width="76" height="42" class="vector-drag-item" data-case="caseA" data-type="tray_c">
+              <!-- c = (3, -1): đi ngang 3 ô, đi xuống 1 ô -->
+              <line x1="10" y1="12" x2="66" y2="28" stroke="#059669" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow_emerald_a)" />
+              <circle cx="10" cy="12" r="4" fill="#059669" stroke="#fff" stroke-width="1.5" />
+            </svg>
+          </div>
+        `;
+      } else {
+        status.innerText = "Đã hoàn thành lắp ghép";
+        bench.innerHTML = `
+          <span class="text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-check-circle"></i> Khối $(\\overrightarrow{a}+\\overrightarrow{b})+\\overrightarrow{c}$ đã ở trên lưới
+          </span>
+        `;
+      }
+      renderMathText(bench);
+    }
+
+    function renderWorkshopB() {
+      const bench = document.getElementById('workshopBenchB');
+      const status = document.getElementById('workshopStatusB');
+      bench.innerHTML = '';
+
+      if (state.caseB.step === 1) {
+        status.innerText = "Kéo c vào ngọn của b";
+        bench.innerHTML = `
+          <!-- Đế b cố định -->
+          <div class="flex items-center gap-2 p-1.5 bg-slate-50 border border-slate-300 rounded-lg">
+            <span class="text-[11px] font-bold text-amber-700">Đế b:</span>
+            <svg id="assemblySlotB_b" width="85" height="42" class="border border-amber-200 bg-white rounded">
+              <!-- b: (10, 28) -> (72, 13) -->
+              <line x1="10" y1="28" x2="72" y2="13" stroke="#d97706" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow_amber_b)" />
+              <circle cx="10" cy="28" r="3.5" fill="#d97706" />
+              <!-- Điểm ngọn nhấp nháy tại (72, 13) -->
+              <circle cx="72" cy="13" r="10" fill="rgba(5, 150, 105, 0.3)" class="snap-ring-anim" />
+              <circle cx="72" cy="13" r="4" fill="#059669" />
+              <text x="35" y="32" font-size="11" font-weight="bold" font-style="italic" fill="#d97706">b</text>
+            </svg>
+          </div>
+
+          <!-- Vectơ c kéo vào -->
+          <div class="flex items-center gap-1.5 p-1.5 bg-emerald-50 border border-emerald-300 rounded-lg">
+            <span class="text-[11px] font-bold text-emerald-700">$\\overrightarrow{c}$:</span>
+            <svg width="76" height="42" class="vector-drag-item" data-case="caseB" data-type="tray_c">
+              <line x1="10" y1="12" x2="66" y2="28" stroke="#059669" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow_emerald_b)" />
+              <circle cx="10" cy="12" r="4" fill="#059669" stroke="#fff" stroke-width="1.5" />
+            </svg>
+          </div>
+        `;
+      } else if (state.caseB.step === 2) {
+        status.innerText = "Khối (b+c) đã tạo. Kéo a vào điểm O trên lưới";
+        bench.innerHTML = `
+          <!-- Vectơ a sẵn sàng kéo vào điểm O -->
+          <div class="flex items-center gap-1.5 p-1.5 bg-blue-50 border border-blue-300 rounded-lg shadow-xs">
+            <span class="text-[11px] font-bold text-blue-700">$\\overrightarrow{a}$:</span>
+            <svg width="48" height="60" class="vector-drag-item" data-case="caseB" data-type="tray_a">
+              <line x1="12" y1="52" x2="32" y2="12" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow_blue_b)" />
+              <circle cx="12" cy="52" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.5" />
+            </svg>
+          </div>
+
+          <!-- Khối (b+c) chờ ở bước tiếp theo -->
+          <div class="flex items-center gap-1.5 p-1.5 bg-cyan-50/70 border border-dashed border-cyan-300 rounded-lg opacity-60">
+            <span class="text-[11px] font-bold text-cyan-800">Khối $(\\overrightarrow{b}+\\overrightarrow{c})$</span>
+            <svg width="105" height="42">
+              <line x1="10" y1="26" x2="55" y2="14" stroke="#d97706" stroke-width="2.5" marker-end="url(#arrow_amber_b)" />
+              <line x1="55" y1="14" x2="95" y2="26" stroke="#059669" stroke-width="2.5" marker-end="url(#arrow_emerald_b)" />
+            </svg>
+          </div>
+        `;
+      } else if (state.caseB.step === 3) {
+        status.innerText = "Kéo khối (b+c) gắn vào ngọn A trên lưới";
+        bench.innerHTML = `
+          <!-- Khối (b+c) hoàn thiện sẵn sàng kéo vào ngọn A -->
+          <div class="flex items-center gap-2 p-1.5 bg-cyan-50 border-2 border-cyan-400 rounded-lg shadow-sm">
+            <span class="text-[11px] font-bold text-cyan-800 flex items-center gap-1">
+              <i class="fa-solid fa-arrows-to-dot"></i> Khối $(\\overrightarrow{b}+\\overrightarrow{c})$:
+            </span>
+            <svg width="115" height="48" class="vector-drag-item" data-case="caseB" data-type="block_bc">
+              <!-- b: (12, 30) -> (60, 16) -->
+              <line x1="12" y1="30" x2="60" y2="16" stroke="#d97706" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow_amber_b)" />
+              <!-- c: (60, 16) -> (104, 30) -->
+              <line x1="60" y1="16" x2="104" y2="30" stroke="#059669" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow_emerald_b)" />
+              <circle cx="12" cy="30" r="4.5" fill="#0891b2" stroke="#fff" stroke-width="1.5" />
+            </svg>
+          </div>
+        `;
+      } else {
+        status.innerText = "Đã hoàn thành lắp ghép";
+        bench.innerHTML = `
+          <span class="text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-check-circle"></i> Khối $\\overrightarrow{a}+(\\overrightarrow{b}+\\overrightarrow{c})$ đã ở trên lưới
+          </span>
+        `;
+      }
+      renderMathText(bench);
+    }
+
+    /* ================= 7. VẼ CÁC VECTƠ TRÊN LƯỚI Ô VUÔNG CỦA BẢNG A & B ================= */
+    function renderBoardA() {
+      const pulseLayer = document.getElementById('pulseLayerA');
+      const placedLayer = document.getElementById('placedLayerA');
+      pulseLayer.innerHTML = '';
+      placedLayer.innerHTML = '';
+
+      // Vòng nhấp nháy chỉ đích O
+      if (state.caseA.step === 2) {
+        pulseLayer.innerHTML = `
+          <circle cx="${O_PT.x}" cy="${O_PT.y}" r="18" fill="rgba(124, 58, 237, 0.25)" class="snap-ring-anim" />
+          <circle cx="${O_PT.x}" cy="${O_PT.y}" r="7" fill="none" stroke="#7c3aed" stroke-width="2" stroke-dasharray="3,3" />
+        `;
+      } else if (state.caseA.step === 3) {
+        pulseLayer.innerHTML = `
+          <circle cx="${B_PT.x}" cy="${B_PT.y}" r="18" fill="rgba(5, 150, 105, 0.25)" class="snap-ring-anim" />
+          <circle cx="${B_PT.x}" cy="${B_PT.y}" r="7" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="3,3" />
+        `;
+      }
+
+      // Khối (a+b) đã đặt vào O
+      if (state.caseA.placedAB_onBoard) {
+        placedLayer.innerHTML += `
+          <!-- OA = a: từ O(56, 266) đến A(84, 182) -->
+          <line x1="${O_PT.x}" y1="${O_PT.y}" x2="${A_PT.x}" y2="${A_PT.y}" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrow_blue_a)" />
+          <circle cx="${A_PT.x}" cy="${A_PT.y}" r="5" fill="#2563eb" stroke="#ffffff" stroke-width="2" />
+          <text x="${A_PT.x - 18}" y="${A_PT.y - 4}" font-size="13" font-weight="bold" fill="#1d4ed8">A</text>
+          ${makeVectorLabelSVG((O_PT.x + A_PT.x)/2 - 18, (O_PT.y + A_PT.y)/2 + 6, "a", "#2563eb", "arrow_blue_a")}
+
+          <!-- AB = b: từ A(84, 182) đến B(196, 154) -->
+          <line x1="${A_PT.x}" y1="${A_PT.y}" x2="${B_PT.x}" y2="${B_PT.y}" stroke="#d97706" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrow_amber_a)" />
+          <circle cx="${B_PT.x}" cy="${B_PT.y}" r="5.5" fill="#d97706" stroke="#ffffff" stroke-width="2" />
+          <text x="${B_PT.x - 4}" y="${B_PT.y - 12}" font-size="13" font-weight="bold" fill="#b45309">B</text>
+          ${makeVectorLabelSVG((A_PT.x + B_PT.x)/2, (A_PT.y + B_PT.y)/2 - 18, "b", "#d97706", "arrow_amber_a")}
+
+          <!-- OB = a+b: nối từ O(56, 266) đến B(196, 154) -->
+          <line x1="${O_PT.x}" y1="${O_PT.y}" x2="${B_PT.x}" y2="${B_PT.y}" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" stroke-dasharray="6,4" marker-end="url(#arrow_purple_a)" class="animated-vector" />
+          ${makeVectorLabelSVG((O_PT.x + B_PT.x)/2 + 20, (O_PT.y + B_PT.y)/2 + 10, "a + b", "#7c3aed", "arrow_purple_a", 68)}
+        `;
+      }
+
+      // BC = c đã đặt vào B
+      if (state.caseA.placedC_onBoard) {
+        placedLayer.innerHTML += `
+          <!-- BC = c: từ B(196, 154) đến C(280, 182) -->
+          <line x1="${B_PT.x}" y1="${B_PT.y}" x2="${C_PT.x}" y2="${C_PT.y}" stroke="#059669" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrow_emerald_a)" />
+          <circle cx="${C_PT.x}" cy="${C_PT.y}" r="6" fill="#059669" stroke="#ffffff" stroke-width="2" />
+          <text x="${C_PT.x + 10}" y="${C_PT.y + 4}" font-size="14" font-weight="bold" fill="#047857">C</text>
+          ${makeVectorLabelSVG((B_PT.x + C_PT.x)/2 + 16, (B_PT.y + C_PT.y)/2 - 14, "c", "#059669", "arrow_emerald_a")}
+        `;
+      }
+
+      // Nối tổng cuối cùng OC: từ O(56, 266) đến C(280, 182)
+      if (state.caseA.connectedTotalOC) {
+        placedLayer.innerHTML += `
+          <!-- OC = (a + b) + c -->
+          <line x1="${O_PT.x}" y1="${O_PT.y}" x2="${C_PT.x}" y2="${C_PT.y}" stroke="#e11d48" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow_rose_a)" class="animated-vector" />
+          ${makeVectorLabelSVG((O_PT.x + C_PT.x)/2 + 20, (O_PT.y + C_PT.y)/2 + 24, "(a + b) + c", "#e11d48", "arrow_rose_a", 100)}
+        `;
+      }
+    }
+
+    function renderBoardB() {
+      const pulseLayer = document.getElementById('pulseLayerB');
+      const placedLayer = document.getElementById('placedLayerB');
+      pulseLayer.innerHTML = '';
+      placedLayer.innerHTML = '';
+
+      // Bước 2: Chỉ báo kéo a vào gốc O
+      if (state.caseB.step === 2) {
+        pulseLayer.innerHTML = `
+          <circle cx="${O_PT.x}" cy="${O_PT.y}" r="18" fill="rgba(37, 99, 235, 0.25)" class="snap-ring-anim" />
+          <circle cx="${O_PT.x}" cy="${O_PT.y}" r="7" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="3,3" />
+        `;
+      }
+      // Bước 3: Chỉ báo kéo khối (b+c) vào ngọn A
+      else if (state.caseB.step === 3) {
+        pulseLayer.innerHTML = `
+          <circle cx="${A_PT.x}" cy="${A_PT.y}" r="18" fill="rgba(8, 145, 178, 0.25)" class="snap-ring-anim" />
+          <circle cx="${A_PT.x}" cy="${A_PT.y}" r="7" fill="none" stroke="#0891b2" stroke-width="2" stroke-dasharray="3,3" />
+        `;
+      }
+
+      // Khi đã đặt vectơ a vào O
+      if (state.caseB.placedA_onBoard) {
+        placedLayer.innerHTML += `
+          <!-- OA = a -->
+          <line x1="${O_PT.x}" y1="${O_PT.y}" x2="${A_PT.x}" y2="${A_PT.y}" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrow_blue_b)" />
+          <circle cx="${A_PT.x}" cy="${A_PT.y}" r="5" fill="#2563eb" stroke="#ffffff" stroke-width="2" />
+          <text x="${A_PT.x - 18}" y="${A_PT.y - 4}" font-size="13" font-weight="bold" fill="#1d4ed8">A</text>
+          ${makeVectorLabelSVG((O_PT.x + A_PT.x)/2 - 18, (O_PT.y + A_PT.y)/2 + 6, "a", "#2563eb", "arrow_blue_b")}
+        `;
+      }
+
+      // Khi đã đặt tiếp khối (b+c) vào ngọn A
+      if (state.caseB.placedBC_onBoard) {
+        placedLayer.innerHTML += `
+          <!-- AB = b: từ A đến B -->
+          <line x1="${A_PT.x}" y1="${A_PT.y}" x2="${B_PT.x}" y2="${B_PT.y}" stroke="#d97706" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrow_amber_b)" />
+          <circle cx="${B_PT.x}" cy="${B_PT.y}" r="5.5" fill="#d97706" stroke="#ffffff" stroke-width="2" />
+          <text x="${B_PT.x - 4}" y="${B_PT.y - 12}" font-size="13" font-weight="bold" fill="#b45309">B</text>
+          ${makeVectorLabelSVG((A_PT.x + B_PT.x)/2, (A_PT.y + B_PT.y)/2 - 18, "b", "#d97706", "arrow_amber_b")}
+
+          <!-- BC = c: từ B đến C -->
+          <line x1="${B_PT.x}" y1="${B_PT.y}" x2="${C_PT.x}" y2="${C_PT.y}" stroke="#059669" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrow_emerald_b)" />
+          <circle cx="${C_PT.x}" cy="${C_PT.y}" r="6" fill="#059669" stroke="#ffffff" stroke-width="2" />
+          <text x="${C_PT.x + 10}" y="${C_PT.y + 4}" font-size="14" font-weight="bold" fill="#047857">C</text>
+          ${makeVectorLabelSVG((B_PT.x + C_PT.x)/2 + 16, (B_PT.y + C_PT.y)/2 - 14, "c", "#059669", "arrow_emerald_b")}
+
+          <!-- Nối trung gian AC = b + c: từ A(84, 182) đến C(280, 182) (nằm ngang) -->
+          <line x1="${A_PT.x}" y1="${A_PT.y}" x2="${C_PT.x}" y2="${C_PT.y}" stroke="#0891b2" stroke-width="4" stroke-linecap="round" stroke-dasharray="6,4" marker-end="url(#arrow_cyan_b)" class="animated-vector" />
+          ${makeVectorLabelSVG((A_PT.x + C_PT.x)/2, A_PT.y + 18, "b + c", "#0891b2", "arrow_cyan_b", 68)}
+        `;
+      }
+
+      // Nối tổng cuối cùng OC: từ O(56, 266) đến C(280, 182)
+      if (state.caseB.connectedTotalOC) {
+        placedLayer.innerHTML += `
+          <!-- OC = a + (b + c) -->
+          <line x1="${O_PT.x}" y1="${O_PT.y}" x2="${C_PT.x}" y2="${C_PT.y}" stroke="#e11d48" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow_rose_b)" class="animated-vector" />
+          ${makeVectorLabelSVG((O_PT.x + C_PT.x)/2 - 10, (O_PT.y + C_PT.y)/2 + 24, "a + (b + c)", "#e11d48", "arrow_rose_b", 100)}
+        `;
+      }
+    }
+
+    /* ================= 8. CẬP NHẬT GIAO DIỆN HƯỚNG DẪN & BƯỚC ================= */
+    function updatePedagogy() {
+      // --- CỘT A ---
+      const badgeA = document.getElementById('badgeA');
+      const guideTextA = document.getElementById('guideTextA');
+      const footerStatusA = document.getElementById('footerStatusA');
+      const btnConnectA = document.getElementById('btnConnectA');
+
+      if (state.caseA.step === 1) {
+        badgeA.innerText = "Bước 1 / 4";
+        badgeA.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800";
+        guideTextA.innerHTML = '<strong>Bước 1:</strong> Trong xưởng ngoài lưới, kéo <span class="text-amber-600 font-bold">$\\overrightarrow{b}$</span> ghép vào ngọn của <span class="text-blue-600 font-bold">$\\overrightarrow{a}$</span> để tạo khối $(\\overrightarrow{a} + \\overrightarrow{b})$.';
+        footerStatusA.innerHTML = '<i class="fa-solid fa-puzzle-piece text-amber-500"></i> Ghép b vào ngọn của a trong xưởng';
+        btnConnectA.classList.add('hidden');
+      } else if (state.caseA.step === 2) {
+        badgeA.innerText = "Bước 2 / 4";
+        badgeA.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800";
+        guideTextA.innerHTML = '<strong>Bước 2:</strong> Kéo khối <span class="text-purple-700 font-bold">$(\\overrightarrow{a} + \\overrightarrow{b})$</span> từ xưởng đặt gốc vào điểm $O$ trên lưới ô vuông.';
+        footerStatusA.innerHTML = '<i class="fa-solid fa-arrows-to-dot text-purple-600"></i> Kéo khối $(\\overrightarrow{a} + \\overrightarrow{b})$ vào điểm O trên lưới';
+        btnConnectA.classList.add('hidden');
+      } else if (state.caseA.step === 3) {
+        badgeA.innerText = "Bước 3 / 4";
+        badgeA.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
+        guideTextA.innerHTML = '<strong>Bước 3:</strong> Kéo vectơ <span class="text-emerald-600 font-bold">$\\overrightarrow{c}$</span> gắn vào điểm ngọn $B$ trên lưới.';
+        footerStatusA.innerHTML = '<i class="fa-solid fa-arrow-right text-emerald-600"></i> Kéo c gắn vào ngọn B trên lưới';
+        btnConnectA.classList.add('hidden');
+      } else if (state.caseA.step === 4) {
+        badgeA.innerText = "Bước 4 / 4";
+        badgeA.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800";
+        guideTextA.innerHTML = '<strong>Bước 4:</strong> Nhấn nút bên dưới để nối vectơ tổng cuối cùng $(\\overrightarrow{a} + \\overrightarrow{b}) + \\overrightarrow{c} = \\overrightarrow{OC}$.';
+        footerStatusA.innerHTML = '<i class="fa-solid fa-circle-check text-rose-600"></i> Sẵn sàng nối vectơ tổng';
+        btnConnectA.classList.remove('hidden');
+      } else {
+        badgeA.innerText = "Hoàn thành";
+        badgeA.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
+        guideTextA.innerHTML = '<span class="text-emerald-700 font-semibold"><i class="fa-solid fa-check"></i> Đã hoàn thành câu a: $(\\overrightarrow{a} + \\overrightarrow{b}) + \\overrightarrow{c} = \\overrightarrow{OB} + \\overrightarrow{BC} = \\mathbf{\\overrightarrow{OC}}$.</span>';
+        footerStatusA.innerHTML = '<span class="text-emerald-700 font-bold">Vectơ tổng: $\\overrightarrow{OC}$</span>';
+        btnConnectA.classList.add('hidden');
+      }
+
+      // --- CỘT B ---
+      const badgeB = document.getElementById('badgeB');
+      const guideTextB = document.getElementById('guideTextB');
+      const footerStatusB = document.getElementById('footerStatusB');
+      const btnConnectB = document.getElementById('btnConnectB');
+
+      if (state.caseB.step === 1) {
+        badgeB.innerText = "Bước 1 / 4";
+        badgeB.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800";
+        guideTextB.innerHTML = '<strong>Bước 1:</strong> Trong xưởng ngoài lưới, kéo <span class="text-emerald-600 font-bold">$\\overrightarrow{c}$</span> ghép vào ngọn của <span class="text-amber-600 font-bold">$\\overrightarrow{b}$</span> để tạo khối $(\\overrightarrow{b} + \\overrightarrow{c})$.';
+        footerStatusB.innerHTML = '<i class="fa-solid fa-puzzle-piece text-emerald-500"></i> Ghép c vào ngọn của b trong xưởng';
+        btnConnectB.classList.add('hidden');
+      } else if (state.caseB.step === 2) {
+        badgeB.innerText = "Bước 2 / 4";
+        badgeB.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800";
+        guideTextB.innerHTML = '<strong>Bước 2:</strong> Kéo vectơ <span class="text-blue-600 font-bold">$\\overrightarrow{a}$</span> gắn gốc vào điểm $O$ trên lưới ô vuông để dựng $\\overrightarrow{OA} = \\overrightarrow{a}$.';
+        footerStatusB.innerHTML = '<i class="fa-solid fa-arrows-to-dot text-blue-600"></i> Kéo a vào điểm O trên lưới';
+        btnConnectB.classList.add('hidden');
+      } else if (state.caseB.step === 3) {
+        badgeB.innerText = "Bước 3 / 4";
+        badgeB.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800";
+        guideTextB.innerHTML = '<strong>Bước 3:</strong> Kéo khối <span class="text-cyan-700 font-bold">$(\\overrightarrow{b} + \\overrightarrow{c})$</span> đã ghép từ xưởng gắn gốc vào ngọn điểm $A$ trên lưới.';
+        footerStatusB.innerHTML = '<i class="fa-solid fa-arrows-to-dot text-cyan-600"></i> Kéo khối (b + c) gắn vào ngọn A trên lưới';
+        btnConnectB.classList.add('hidden');
+      } else if (state.caseB.step === 4) {
+        badgeB.innerText = "Bước 4 / 4";
+        badgeB.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800";
+        guideTextB.innerHTML = '<strong>Bước 4:</strong> Nhấn nút bên dưới để nối vectơ tổng cuối cùng $\\overrightarrow{a} + (\\overrightarrow{b} + \\overrightarrow{c}) = \\overrightarrow{OA} + \\overrightarrow{AC} = \\overrightarrow{OC}$.';
+        footerStatusB.innerHTML = '<i class="fa-solid fa-circle-check text-rose-600"></i> Sẵn sàng nối vectơ tổng';
+        btnConnectB.classList.remove('hidden');
+      } else {
+        badgeB.innerText = "Hoàn thành";
+        badgeB.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
+        guideTextB.innerHTML = '<span class="text-emerald-700 font-semibold"><i class="fa-solid fa-check"></i> Đã hoàn thành câu b: $\\overrightarrow{a} + (\\overrightarrow{b} + \\overrightarrow{c}) = \\overrightarrow{OA} + \\overrightarrow{AC} = \\mathbf{\\overrightarrow{OC}}$.</span>';
+        footerStatusB.innerHTML = '<span class="text-emerald-700 font-bold">Vectơ tổng: $\\overrightarrow{OC}$</span>';
+        btnConnectB.classList.add('hidden');
+      }
+
+      // Check nút chập so sánh
+      const btnOpenCompare = document.getElementById('btnOpenCompare');
+      if (state.caseA.step === 5 && state.caseB.step === 5) {
+        btnOpenCompare.disabled = false;
+        btnOpenCompare.className = "px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-rose-600 text-white shadow-md hover:shadow-lg animate-pulse cursor-pointer transition";
+      } else {
+        btnOpenCompare.disabled = true;
+        btnOpenCompare.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 bg-slate-200 text-slate-400 cursor-not-allowed shadow-none";
+      }
+
+      renderWorkshopA();
+      renderWorkshopB();
+      renderBoardA();
+      renderBoardB();
+      bindDraggables();
+      renderAllMath();
+    }
+
+    /* ================= 9. CƠ CHẾ KÉO THẢ POINTER EVENTS ================= */
+    let currentDrag = null;
+
+    function getSvgCoords(svg, clientX, clientY) {
+      const rect = svg.getBoundingClientRect();
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function bindDraggables() {
+      const items = document.querySelectorAll('.vector-drag-item');
+      items.forEach(el => {
+        el.onpointerdown = (e) => {
+          e.preventDefault();
+          const caseKey = el.dataset.case;
+          const type = el.dataset.type;
+
+          el.setPointerCapture(e.pointerId);
+
+          const targetSvg = caseKey === 'caseA' ? document.getElementById('svgBoardA') : document.getElementById('svgBoardB');
+          const floatingLayer = caseKey === 'caseA' ? document.getElementById('floatingLayerA') : document.getElementById('floatingLayerB');
+
+          currentDrag = {
+            pointerId: e.pointerId,
+            caseKey,
+            type,
+            el,
+            targetSvg,
+            floatingLayer
+          };
+
+          renderGhost(e.clientX, e.clientY);
+        };
+
+        el.onpointermove = (e) => {
+          if (!currentDrag || currentDrag.pointerId !== e.pointerId) return;
+          e.preventDefault();
+          renderGhost(e.clientX, e.clientY);
+        };
+
+        el.onpointerup = (e) => {
+          if (!currentDrag || currentDrag.pointerId !== e.pointerId) return;
+          e.preventDefault();
+          el.releasePointerCapture(e.pointerId);
+
+          currentDrag.floatingLayer.innerHTML = '';
+          validateDrop(currentDrag.caseKey, currentDrag.type, e.clientX, e.clientY);
+          currentDrag = null;
+        };
+
+        el.onpointercancel = (e) => {
+          if (currentDrag && currentDrag.pointerId === e.pointerId) {
+            currentDrag.floatingLayer.innerHTML = '';
+            currentDrag = null;
+          }
+        };
+      });
+    }
+
+    function renderGhost(clientX, clientY) {
+      if (!currentDrag) return;
+      const coords = getSvgCoords(currentDrag.targetSvg, clientX, clientY);
+      const fl = currentDrag.floatingLayer;
+      const t = currentDrag.type;
+      const isCaseA = currentDrag.caseKey === 'caseA';
+      const mBlue = isCaseA ? "arrow_blue_a" : "arrow_blue_b";
+      const mAmber = isCaseA ? "arrow_amber_a" : "arrow_amber_b";
+      const mEmerald = isCaseA ? "arrow_emerald_a" : "arrow_emerald_b";
+
+      if (t === 'tray_b') {
+        fl.innerHTML = `
+          <line x1="${coords.x}" y1="${coords.y}" x2="${coords.x + VEC_B.dx}" y2="${coords.y + VEC_B.dy}" stroke="#d97706" stroke-width="4" stroke-linecap="round" opacity="0.85" marker-end="url(#${mAmber})" />
+          <circle cx="${coords.x}" cy="${coords.y}" r="6" fill="#d97706" stroke="#fff" stroke-width="2" />
+        `;
+      } else if (t === 'block_ab') {
+        fl.innerHTML = `
+          <line x1="${coords.x}" y1="${coords.y}" x2="${coords.x + VEC_A.dx}" y2="${coords.y + VEC_A.dy}" stroke="#2563eb" stroke-width="4" stroke-linecap="round" opacity="0.85" marker-end="url(#${mBlue})" />
+          <line x1="${coords.x + VEC_A.dx}" y1="${coords.y + VEC_A.dy}" x2="${coords.x + VEC_A.dx + VEC_B.dx}" y2="${coords.y + VEC_A.dy + VEC_B.dy}" stroke="#d97706" stroke-width="4" stroke-linecap="round" opacity="0.85" marker-end="url(#${mAmber})" />
+          <circle cx="${coords.x}" cy="${coords.y}" r="6.5" fill="#7c3aed" stroke="#fff" stroke-width="2" />
+        `;
+      } else if (t === 'tray_c') {
+        fl.innerHTML = `
+          <line x1="${coords.x}" y1="${coords.y}" x2="${coords.x + VEC_C.dx}" y2="${coords.y + VEC_C.dy}" stroke="#059669" stroke-width="4" stroke-linecap="round" opacity="0.85" marker-end="url(#${mEmerald})" />
+          <circle cx="${coords.x}" cy="${coords.y}" r="6" fill="#059669" stroke="#fff" stroke-width="2" />
+        `;
+      } else if (t === 'tray_a') {
+        fl.innerHTML = `
+          <line x1="${coords.x}" y1="${coords.y}" x2="${coords.x + VEC_A.dx}" y2="${coords.y + VEC_A.dy}" stroke="#2563eb" stroke-width="4" stroke-linecap="round" opacity="0.85" marker-end="url(#${mBlue})" />
+          <circle cx="${coords.x}" cy="${coords.y}" r="6" fill="#2563eb" stroke="#fff" stroke-width="2" />
+        `;
+      } else if (t === 'block_bc') {
+        fl.innerHTML = `
+          <line x1="${coords.x}" y1="${coords.y}" x2="${coords.x + VEC_B.dx}" y2="${coords.y + VEC_B.dy}" stroke="#d97706" stroke-width="4" stroke-linecap="round" opacity="0.85" marker-end="url(#${mAmber})" />
+          <line x1="${coords.x + VEC_B.dx}" y1="${coords.y + VEC_B.dy}" x2="${coords.x + VEC_B.dx + VEC_C.dx}" y2="${coords.y + VEC_B.dy + VEC_C.dy}" stroke="#059669" stroke-width="4" stroke-linecap="round" opacity="0.85" marker-end="url(#${mEmerald})" />
+          <circle cx="${coords.x}" cy="${coords.y}" r="6.5" fill="#0891b2" stroke="#fff" stroke-width="2" />
+        `;
+      }
+    }
+
+    function validateDrop(caseKey, type, clientX, clientY) {
+      if (caseKey === 'caseA') {
+        // Bước 1: Ghép b vào ngọn a trong xưởng ngoài lưới
+        if (state.caseA.step === 1 && type === 'tray_b') {
+          const slot = document.getElementById('assemblySlotA_a');
+          if (slot) {
+            const rect = slot.getBoundingClientRect();
+            // Đích ngọn a tại (rect.left + 35, rect.top + 14)
+            const targetX = rect.left + 35;
+            const targetY = rect.top + 14;
+            const dist = Math.hypot(clientX - targetX, clientY - targetY);
+
+            if (dist <= 48) {
+              state.caseA.assembledAB = true;
+              state.caseA.step = 2;
+              showToast('success', 'Ghép thành công!', 'Đã tạo khối (a + b) trong xưởng! Giờ hãy kéo khối này gắn vào điểm O trên lưới.');
+              updatePedagogy();
+              return;
+            }
+          }
+          showToast('warning', 'Chưa khớp ngọn a', 'Hãy kéo gốc của vectơ b vào đúng vòng ngọn của vectơ a trong xưởng.');
+        }
+
+        // Bước 2: Kéo khối (a+b) vào điểm O trên lưới
+        else if (state.caseA.step === 2 && type === 'block_ab') {
+          const boardSvg = document.getElementById('svgBoardA');
+          const coords = getSvgCoords(boardSvg, clientX, clientY);
+          const dist = Math.hypot(coords.x - O_PT.x, coords.y - O_PT.y);
+
+          if (dist <= SNAP_RADIUS) {
+            state.caseA.placedAB_onBoard = true;
+            state.caseA.step = 3;
+            showToast('success', 'Đã gắn vào điểm O!', 'Đã đặt OA = a, AB = b và tự động nối vectơ trung gian OB = a + b.');
+            updatePedagogy();
+            return;
+          }
+          showToast('warning', 'Chưa khớp điểm O', 'Hãy kéo gốc khối đặt vào đúng điểm O trên bảng lưới ô vuông.');
+        }
+
+        // Bước 3: Kéo c vào ngọn B trên lưới
+        else if (state.caseA.step === 3 && type === 'tray_c') {
+          const boardSvg = document.getElementById('svgBoardA');
+          const coords = getSvgCoords(boardSvg, clientX, clientY);
+          const dist = Math.hypot(coords.x - B_PT.x, coords.y - B_PT.y);
+
+          if (dist <= SNAP_RADIUS) {
+            state.caseA.placedC_onBoard = true;
+            state.caseA.step = 4;
+            showToast('success', 'Chính xác!', 'Đã dựng xong BC = c. Giờ bạn có thể nối vectơ tổng cuối cùng.');
+            updatePedagogy();
+            return;
+          }
+          showToast('warning', 'Chưa khớp ngọn B', 'Hãy kéo gốc của vectơ c gắn đúng vào ngọn điểm B trên bảng lưới.');
+        }
+      } else {
+        // --- CASE B (Thứ tự mới: ghép b+c -> kéo a vào O -> kéo khối (b+c) vào ngọn A -> nối OC) ---
+        // Bước 1: Ghép c vào ngọn b trong xưởng ngoài lưới
+        if (state.caseB.step === 1 && type === 'tray_c') {
+          const slot = document.getElementById('assemblySlotB_b');
+          if (slot) {
+            const rect = slot.getBoundingClientRect();
+            // Đích ngọn b tại (rect.left + 72, rect.top + 13)
+            const targetX = rect.left + 72;
+            const targetY = rect.top + 13;
+            const dist = Math.hypot(clientX - targetX, clientY - targetY);
+
+            if (dist <= 48) {
+              state.caseB.assembledBC = true;
+              state.caseB.step = 2;
+              showToast('success', 'Ghép thành công!', 'Đã tạo khối (b + c) trong xưởng! Giờ hãy kéo vectơ a gắn vào điểm O trên lưới.');
+              updatePedagogy();
+              return;
+            }
+          }
+          showToast('warning', 'Chưa khớp ngọn b', 'Hãy kéo gốc vectơ c vào đúng vòng ngọn của vectơ b trong xưởng.');
+        }
+
+        // Bước 2: Kéo vectơ a gắn gốc vào điểm O trên lưới
+        else if (state.caseB.step === 2 && type === 'tray_a') {
+          const boardSvg = document.getElementById('svgBoardB');
+          const coords = getSvgCoords(boardSvg, clientX, clientY);
+          const dist = Math.hypot(coords.x - O_PT.x, coords.y - O_PT.y);
+
+          if (dist <= SNAP_RADIUS) {
+            state.caseB.placedA_onBoard = true;
+            state.caseB.step = 3;
+            showToast('success', 'Đã gắn vào điểm O!', 'Đã dựng xong OA = a và xác định điểm ngọn A. Giờ hãy kéo khối (b + c) gắn vào A.');
+            updatePedagogy();
+            return;
+          }
+          showToast('warning', 'Chưa khớp điểm O', 'Hãy kéo gốc của vectơ a đặt vào đúng điểm O trên lưới ô vuông.');
+        }
+
+        // Bước 3: Kéo khối (b + c) từ xưởng gắn vào ngọn A trên lưới
+        else if (state.caseB.step === 3 && type === 'block_bc') {
+          const boardSvg = document.getElementById('svgBoardB');
+          const coords = getSvgCoords(boardSvg, clientX, clientY);
+          const dist = Math.hypot(coords.x - A_PT.x, coords.y - A_PT.y);
+
+          if (dist <= SNAP_RADIUS) {
+            state.caseB.placedBC_onBoard = true;
+            state.caseB.step = 4;
+            showToast('success', 'Gắn khối thành công!', 'Đã dựng AB = b, BC = c và tự động nối đường trung gian AC = b + c (nằm ngang).');
+            updatePedagogy();
+            return;
+          }
+          showToast('warning', 'Chưa khớp ngọn A', 'Hãy kéo gốc của khối (b + c) gắn đúng vào ngọn điểm A trên bảng lưới.');
+        }
+      }
+    }
+
+    /* ================= 10. NÚT NỐI VECTƠ TỔNG CUỐI CÙNG OC ================= */
+    document.getElementById('btnConnectA').addEventListener('click', () => {
+      state.caseA.connectedTotalOC = true;
+      state.caseA.step = 5;
+      showToast('success', 'Hoàn thành câu a!', 'Đã xác định vectơ tổng (a + b) + c = OC.');
+      updatePedagogy();
+      checkBothDone();
+    });
+
+    document.getElementById('btnConnectB').addEventListener('click', () => {
+      state.caseB.connectedTotalOC = true;
+      state.caseB.step = 5;
+      showToast('success', 'Hoàn thành câu b!', 'Đã xác định vectơ tổng a + (b + c) = OC.');
+      updatePedagogy();
+      checkBothDone();
+    });
+
+    function checkBothDone() {
+      if (state.caseA.step === 5 && state.caseB.step === 5) {
+        playChime('victory');
+        confetti({ particleCount: 95, spread: 80, origin: { y: 0.6 } });
+        setTimeout(() => {
+          showToast('victory', 'Xuất sắc!', 'Cả 2 trường hợp đã hoàn tất. Hãy bấm nút "So sánh" để xem kết quả chập hình!');
+        }, 600);
+      }
+    }
+
+    /* ================= 11. MODAL CHẬP SO SÁNH ================= */
+    const modalCompare = document.getElementById('modalCompare');
+    const btnOpenCompare = document.getElementById('btnOpenCompare');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnDismissModal = document.getElementById('btnDismissModal');
+    const layerModalCombined = document.getElementById('layerModalCombined');
+
+    function renderCombinedModal() {
+      // Gốc O trong modal: (60, 240)
+      const mO = { x: 70, y: 240 };
+      const mA = { x: mO.x + VEC_A.dx, y: mO.y + VEC_A.dy }; // (98, 156)
+      const mB = { x: mA.x + VEC_B.dx, y: mA.y + VEC_B.dy }; // (210, 128)
+      const mC = { x: mB.x + VEC_C.dx, y: mB.y + VEC_C.dy }; // (294, 156)
+
+      layerModalCombined.innerHTML = `
+        <!-- Vùng tứ giác liên kết O-A-B-C -->
+        <polygon points="${mO.x},${mO.y} ${mA.x},${mA.y} ${mB.x},${mB.y} ${mC.x},${mC.y}" 
+                 fill="rgba(99, 102, 241, 0.07)" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4" />
+
+        <!-- 3 vectơ gốc: OA, AB, BC có mũi tên đúng chiều -->
+        <line x1="${mO.x}" y1="${mO.y}" x2="${mA.x}" y2="${mA.y}" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" marker-end="url(#m_blue)" />
+        <line x1="${mA.x}" y1="${mA.y}" x2="${mB.x}" y2="${mB.y}" stroke="#d97706" stroke-width="3.2" stroke-linecap="round" marker-end="url(#m_amber)" />
+        <line x1="${mB.x}" y1="${mB.y}" x2="${mC.x}" y2="${mC.y}" stroke="#059669" stroke-width="3.2" stroke-linecap="round" marker-end="url(#m_emerald)" />
+
+        <!-- Nhánh a: OB = a + b -->
+        <line x1="${mO.x}" y1="${mO.y}" x2="${mB.x}" y2="${mB.y}" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="6,4" marker-end="url(#m_purple)" />
+        ${makeVectorLabelSVG((mO.x + mB.x)/2 + 20, (mO.y + mB.y)/2 + 10, "a + b", "#7c3aed", "m_purple", 68)}
+
+        <!-- Nhánh b: AC = b + c (nằm ngang) -->
+        <line x1="${mA.x}" y1="${mA.y}" x2="${mC.x}" y2="${mC.y}" stroke="#0891b2" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="6,4" marker-end="url(#m_cyan)" />
+        ${makeVectorLabelSVG((mA.x + mC.x)/2, mA.y + 18, "b + c", "#0891b2", "m_cyan", 68)}
+
+        <!-- Vectơ tổng chung OC chập khít 100% -->
+        <line x1="${mO.x}" y1="${mO.y}" x2="${mC.x}" y2="${mC.y}" stroke="#e11d48" stroke-width="5.5" stroke-linecap="round" marker-end="url(#m_rose)" />
+        ${makeVectorLabelSVG((mO.x + mC.x)/2 + 10, (mO.y + mC.y)/2 + 25, "OC: (a+b)+c ≡ a+(b+c)", "#e11d48", "m_rose", 150)}
+
+        <!-- Các điểm mút -->
+        <circle cx="${mO.x}" cy="${mO.y}" r="6" fill="#0f172a" stroke="#fff" stroke-width="2" />
+        <text x="${mO.x - 20}" y="${mO.y + 16}" font-size="14" font-weight="bold" fill="#0f172a">O</text>
+
+        <circle cx="${mA.x}" cy="${mA.y}" r="5.5" fill="#2563eb" stroke="#fff" stroke-width="2" />
+        <text x="${mA.x - 18}" y="${mA.y - 6}" font-size="13" font-weight="bold" fill="#2563eb">A</text>
+
+        <circle cx="${mB.x}" cy="${mB.y}" r="6" fill="#d97706" stroke="#fff" stroke-width="2" />
+        <text x="${mB.x - 4}" y="${mB.y - 12}" font-size="14" font-weight="bold" fill="#d97706">B</text>
+
+        <circle cx="${mC.x}" cy="${mC.y}" r="7" fill="#e11d48" stroke="#fff" stroke-width="2.5" />
+        <text x="${mC.x + 14}" y="${mC.y + 5}" font-size="15" font-weight="900" fill="#e11d48">C</text>
+
+        <!-- Nhãn các cạnh gốc -->
+        ${makeVectorLabelSVG((mO.x + mA.x)/2 - 18, (mO.y + mA.y)/2 + 6, "a", "#2563eb", "m_blue")}
+        ${makeVectorLabelSVG((mA.x + mB.x)/2, (mA.y + mB.y)/2 - 18, "b", "#d97706", "m_amber")}
+        ${makeVectorLabelSVG((mB.x + mC.x)/2 + 16, (mB.y + mC.y)/2 - 14, "c", "#059669", "m_emerald")}
+      `;
+    }
+
+    btnOpenCompare.addEventListener('click', () => {
+      renderCombinedModal();
+      modalCompare.classList.remove('hidden');
+      modalCompare.classList.add('flex');
+      renderMathText(modalCompare);
+    });
+
+    function closeModal() {
+      modalCompare.classList.add('hidden');
+      modalCompare.classList.remove('flex');
+    }
+    btnCloseModal.addEventListener('click', closeModal);
+    btnDismissModal.addEventListener('click', closeModal);
+
+    /* ================= 12. NÚT LÀM LẠI ================= */
+    document.getElementById('btnResetAll').addEventListener('click', () => {
+      state.caseA = { step: 1, assembledAB: false, placedAB_onBoard: false, placedC_onBoard: false, connectedTotalOC: false };
+      state.caseB = { step: 1, assembledBC: false, placedA_onBoard: false, placedBC_onBoard: false, connectedTotalOC: false };
+
+      updatePedagogy();
+      showToast('info', 'Đã khởi tạo lại', 'Mời bạn bắt đầu lại thao tác lắp ghép từ bước 1.');
+    });
+
+    /* ================= 13. KHỞI CHẠY LẦN ĐẦU ================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      updatePedagogy();
+
+      const katexInterval = setInterval(() => {
+        if (window.renderMathInElement) {
+          clearInterval(katexInterval);
+          renderAllMath();
+        }
+      }, 50);
+    });
+  </script>
+</body>
+</html>
